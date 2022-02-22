@@ -5,7 +5,7 @@ const ApplicationContainer = (props) => {
   return (
     <AppShell
       fixed
-      header = {<ApplicationHeader />}
+      header={<ApplicationHeader />}
     >
       {props.children}
     </AppShell>
