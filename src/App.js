@@ -6,17 +6,20 @@ import {
 } from 'react-router-dom';
 import './App.css';
 
+import ApplicationContainer from './components/ApplicationContainer/ApplicationContiner';
 const Home = lazy(() => import('./pages/Home/Home'));
 
 const App = () => {
   return (
-    <Router>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Routes>
-          <Route exact path="/" element={ <Home /> } />
-        </Routes>
-      </Suspense>
-    </Router>
+    <ApplicationContainer>
+      <Router>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Routes>
+            <Route exact path="/" element={ <Home /> } />
+          </Routes>
+        </Suspense>
+      </Router>
+    </ApplicationContainer>
   );
 }
 
