@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Button, Text } from "@mantine/core";
 
+import Searchbar from '../../components/Searchbar/Searchbar';
+
 const Home = () => {
   const [result, setResult] = useState('');
 
@@ -24,6 +26,7 @@ const Home = () => {
         Click Me!
       </Button>
       <Text>{result}</Text>
+      <Searchbar />
     </>
   );
 }

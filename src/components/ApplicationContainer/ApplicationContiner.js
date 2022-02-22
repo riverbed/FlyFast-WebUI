@@ -1,5 +1,5 @@
 import { AppShell } from '@mantine/core';
-import ApplicationHeader from '../ApplicationHeader/ApplicationHeader';
+import ApplicationHeader from './ApplicationHeader';
 
 const ApplicationContainer = (props) => {
   return (
