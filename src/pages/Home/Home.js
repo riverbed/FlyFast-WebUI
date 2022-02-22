@@ -23,10 +23,10 @@ const Home = () => {
       <Button variant="gradient" gradient={{ from: 'indigo', to: 'cyan' }}
         onClick={handleClick}
       >
-        Click Me!
+        Search JFK To LAX
       </Button>
       <Text>{result}</Text>
-      <Searchbar />
+      <Searchbar dataChange={(dataChange) => setResult(dataChange)}/>
     </>
   );
 }
