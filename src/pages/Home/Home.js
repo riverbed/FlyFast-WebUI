@@ -1,15 +1,17 @@
-import { Button } from "@mantine/core";
+import { useState } from 'react';
+import { Button, Text } from "@mantine/core";
 
 const Home = () => {
+  const [result, setResult] = useState('');
 
   function handleClick(e) {
     e.preventDefault();
-    let url = "http://localhost:8080/searchflight?from=JFK&to=LAX";
+    let url = "/searchflight?from=JFK&to=LAX";
     fetch(url)
-      .then(res => res)
+      .then(res => res.json())
       .then(
-        (result) => {
-          console.log(result)
+        result => {
+          setResult(result);
         }
       )
   }
@@ -17,10 +19,11 @@ const Home = () => {
   return (
     <>
       <Button variant="gradient" gradient={{ from: 'indigo', to: 'cyan' }}
-        onClick={(e) => handleClick(e)}
+        onClick={handleClick}
       >
         Click Me!
       </Button>
+      <Text>{result}</Text>
     </>
   );
 }
