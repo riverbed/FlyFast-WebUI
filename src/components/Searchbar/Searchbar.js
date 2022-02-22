@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { TextInput, Group, Button, Paper, LoadingOverlay } from '@mantine/core';
+import { Autocomplete, Group, Button, Paper, LoadingOverlay } from '@mantine/core';
+import airports from './Airports.json';
 
 const Searchbar = ({ dataChange }) => {
   const [overlayShow, setOverlayShow] = useState(false);
@@ -8,14 +9,14 @@ const Searchbar = ({ dataChange }) => {
 
   function handleSubmit(e) {
     e.preventDefault();
-    let url = `/searchflight?from=${from}&to=${to}`;
+    const url = `/searchflight?from=${from}&to=${to}`;
     fetch(url)
-      .then(res => res.json())
-      .then(
-        result => {
-          dataChange(result);
-        }
-      )
+    .then(res => res.json())
+    .then(
+      result => {
+        dataChange(result);
+      }
+    )
   }
 
   return (
@@ -26,18 +27,20 @@ const Searchbar = ({ dataChange }) => {
       <form onSubmit={handleSubmit}>
         <LoadingOverlay visible={overlayShow} />
         <Group grow>
-          <TextInput
+          <Autocomplete
             required
             placeholder="From?"
+            data={airports}
             value={from}
-            onChange={(e) => setFrom(e.currentTarget.value)}
+            onChange={setFrom}
           />
 
-          <TextInput
+          <Autocomplete
             required
             placeholder="To?"
+            data={airports}
             value={to}
-            onChange={(e) => setTo(e.currentTarget.value)}
+            onChange={setTo}
           />
         </Group>
         <Group mt="xl">

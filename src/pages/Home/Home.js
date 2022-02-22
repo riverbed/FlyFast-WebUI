@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button, Text } from "@mantine/core";
+import { Button, Text, Group } from "@mantine/core";
 
 import Searchbar from '../../components/Searchbar/Searchbar';
 
@@ -20,13 +20,21 @@ const Home = () => {
 
   return (
     <>
-      <Button variant="gradient" gradient={{ from: 'indigo', to: 'cyan' }}
-        onClick={handleClick}
-      >
-        Search JFK To LAX
-      </Button>
-      <Text>{result}</Text>
-      <Searchbar dataChange={(dataChange) => setResult(dataChange)}/>
+      <Group>
+        <Button 
+          variant="gradient"
+          gradient={{ from: 'indigo', to: 'cyan' }}
+          onClick={handleClick}
+        >
+          Search JFK To LAX
+        </Button>
+      </Group>
+      <Searchbar 
+        dataChange={(dataChange) => setResult(dataChange)}
+      />
+      <Text>
+        {result}
+      </Text>
     </>
   );
 }
