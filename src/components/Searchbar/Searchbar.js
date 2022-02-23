@@ -14,7 +14,7 @@ const Searchbar = ({ dataChange }) => {
     .then(res => res.json())
     .then(
       result => {
-        dataChange(result);
+        dataChange(JSON.stringify(result));
       }
     )
   }
