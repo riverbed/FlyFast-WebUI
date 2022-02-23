@@ -13,7 +13,7 @@ const Home = () => {
       .then(res => res.json())
       .then(
         result => {
-          setResult(result);
+          setResult(JSON.stringify(result));
         }
       )
   }
