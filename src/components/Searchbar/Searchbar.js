@@ -3,6 +3,7 @@ import { Autocomplete, Group, Button, Paper, LoadingOverlay, NativeSelect } from
 import { DateRangePicker, DatePicker } from '@mantine/dates';
 
 import airports from './Airports.json';
+import { searchFlight } from '../../services/Flight';
 
 const Searchbar = ({ dataChange }) => {
   const today = new Date();
@@ -29,14 +30,10 @@ const Searchbar = ({ dataChange }) => {
 
   function handleSubmit(e) {
     e.preventDefault();
-    const url = `/searchflight?from=${from}&to=${to}`;
-    fetch(url)
-    .then(res => res.json())
-    .then(
-      result => {
+    searchFlight(from, to)
+      .then( result => {
         dataChange(JSON.stringify(result));
-      }
-    )
+      })
   }
 
   return (
