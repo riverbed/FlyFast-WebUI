@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Autocomplete, Group, Button, Paper, NativeSelect, Grid } from '@mantine/core';
 import { DateRangePicker, DatePicker } from '@mantine/dates';
 import { FaPlaneArrival, FaPlaneDeparture, FaSearch } from "react-icons/fa";
@@ -10,15 +10,32 @@ import { airportFilter, airportInformation } from './AirportInformation';
 import { searchFlight } from '../../services/Flight';
 
 const Searchbar = ({ dataChange }) => {
-  const today = new Date();
-
   const [loading, setLoading] = useState(false);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [trip, setTrip] = useState('Round Trip');
   const [seat, setSeat] = useState('Economy');
-  const [roundTripDate, setRoundTripDate] = useState([new Date(today.getTime() + (7 * 24 * 60 * 60 * 1000)), new Date(today.getTime() + (14 * 24 * 60 * 60 * 1000))]);
-  const [oneWayDate, setOneWayDate] = useState(new Date(today.getTime() + (7 * 24 * 60 * 60 * 1000)));
+  const [roundTripDate, setRoundTripDate] = useState([]);
+  const [oneWayDate, setOneWayDate] = useState('');
+
+  useEffect(() => {
+    const today = new Date();
+    let useDate = new Date(today.getTime() + (7 * 24 * 60 * 60 * 1000));
+
+    if (trip === 'One Way'){
+      if (roundTripDate[0]) {
+        useDate = roundTripDate[0];
+      }
+      setOneWayDate(useDate);
+    }
+    else if (trip === 'Round Trip'){
+      if (oneWayDate) {
+        useDate = oneWayDate;
+      }
+      let nextDate = new Date(useDate.getTime() + (7 * 24 * 60 * 60 * 1000));
+      setRoundTripDate([useDate, nextDate]);
+    }
+  }, [trip])
 
   const tripTypes = [
     { value: 'One Way', label: 'One Way' },
@@ -96,6 +113,7 @@ const Searchbar = ({ dataChange }) => {
             { trip === "Round Trip" &&
               <DateRangePicker
                 required
+                clearable={false}
                 icon={<BsCalendarWeek />}
                 placeholder="Pick Trip Range"
                 amountOfMonths={2}
@@ -107,6 +125,7 @@ const Searchbar = ({ dataChange }) => {
             { trip === "One Way" &&
               <DatePicker
                 required
+                clearable={false}
                 icon={<BsCalendarWeek />}
                 placeholder="Pick Trip Date"
                 amountOfMonths={1}
