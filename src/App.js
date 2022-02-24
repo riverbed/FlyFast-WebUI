@@ -1,3 +1,4 @@
+import { LoadingOverlay } from '@mantine/core';
 import { Suspense, lazy } from 'react';
 import {
   BrowserRouter as Router,
@@ -13,7 +14,7 @@ const App = () => {
   return (
     <ApplicationContainer>
       <Router>
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<LoadingOverlay visible={true} />}>
           <Routes>
             <Route exact path="/" element={ <Home /> } />
           </Routes>
