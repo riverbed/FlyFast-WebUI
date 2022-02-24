@@ -5,7 +5,8 @@ import { FaPlaneArrival, FaPlaneDeparture, FaSearch } from "react-icons/fa";
 import { BsCalendarWeek } from "react-icons/bs";
 import { MdAirplanemodeActive, MdOutlineAirlineSeatReclineNormal } from "react-icons/md";
 
-import airports from './Airports.json';
+import airports from './AirportsData.json';
+import { airportFilter, airportInformation } from './AirportInformation';
 import { searchFlight } from '../../services/Flight';
 
 const Searchbar = ({ dataChange }) => {
@@ -72,7 +73,9 @@ const Searchbar = ({ dataChange }) => {
                 required
                 icon={<FaPlaneDeparture />}
                 placeholder="From?"
+                itemComponent={airportInformation}
                 data={airports}
+                filter={airportFilter}
                 value={from}
                 onChange={setFrom}
               />
@@ -81,7 +84,9 @@ const Searchbar = ({ dataChange }) => {
                 required
                 icon={<FaPlaneArrival />}
                 placeholder="To?"
+                itemComponent={airportInformation}
                 data={airports}
+                filter={airportFilter}
                 value={to}
                 onChange={setTo}
               />
@@ -90,6 +95,7 @@ const Searchbar = ({ dataChange }) => {
           <Grid.Col md={4} sm={12}>
             { trip === "Round Trip" &&
               <DateRangePicker
+                required
                 icon={<BsCalendarWeek />}
                 placeholder="Pick Trip Range"
                 amountOfMonths={2}
@@ -100,6 +106,7 @@ const Searchbar = ({ dataChange }) => {
             }
             { trip === "One Way" &&
               <DatePicker
+                required
                 icon={<BsCalendarWeek />}
                 placeholder="Pick Trip Date"
                 amountOfMonths={1}
