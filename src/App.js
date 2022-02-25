@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom';
 import './App.css';
 
-import ApplicationContainer from './components/ApplicationContainer/ApplicationContiner';
+import ApplicationContainer from './components/ApplicationContainer/ApplicationContainer';
 const Home = lazy(() => import('./pages/Home/Home'));
 
 const App = () => {

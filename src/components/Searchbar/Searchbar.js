@@ -64,6 +64,7 @@ const Searchbar = ({ dataChange }) => {
     <Paper
       padding='lg'
       shadow='sm'
+      withBorder
     >
       <form onSubmit={handleSubmit}>
         <Group my="sm">
