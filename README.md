@@ -1,6 +1,16 @@
-# Getting Started with Create React App
+# FlyFast - WebUI
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Requirements
+1. [NodeJS](https://nodejs.org/en/)
+
+## Get Started
+1. Clone/download this repository.
+2. Using the terminal, head into the folder of this project.
+3. Install the dependencies required to run this application:
+```
+npm install
+```
+4. Select one of the available scripts below that best suits your purpose.
 
 ## Available Scripts
 
@@ -39,11 +49,7 @@ Instead, it will copy all the configuration files and the transitive dependencie
 
 You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Additional Information
 
 ### Code Splitting
 
