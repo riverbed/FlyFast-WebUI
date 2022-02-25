@@ -10,6 +10,7 @@
 ```
 npm install
 ```
+4. Make sure to set the environment variables for the application. Take a look at [.env.example](.env.example)
 4. Select one of the available scripts below that best suits your purpose.
 
 ## Available Scripts
