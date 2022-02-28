@@ -46,17 +46,26 @@ const Searchbar = ({ dataChange }) => {
     { value: 'Economy', label: 'Economy' },
     { value: 'Premium Economy', label: 'Premium Economy' },
     { value: 'Business', label: 'Business' },
-    { value: 'First', label: 'First' },
+    { value: 'First', label: 'First' }
   ];
 
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    await searchFlight(from, to)
+    if (trip === 'One Way'){
+      await searchFlight(from, to, oneWayDate, '', seat)
       .then( result => {
         dataChange(JSON.stringify(result));
       })
-      .catch( error => console.error(error))
+      .catch( error => console.error(error));
+    }
+    else if (trip === 'Round Trip'){
+      await searchFlight(from, to, roundTripDate[0], roundTripDate[1], seat)
+      .then( result => {
+        dataChange(JSON.stringify(result));
+      })
+      .catch( error => console.error(error));
+    }
     setLoading(false);
   }
 
