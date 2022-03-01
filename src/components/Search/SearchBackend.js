@@ -7,16 +7,33 @@ import { MdAirplanemodeActive, MdOutlineAirlineSeatReclineNormal } from "react-i
 
 import airports from './AirportsData.json';
 import { airportBackendFilter, airportBackendInformation } from './AirportInformation';
-import { searchFlight } from '../../services/Flight';
+import { searchFlight, airportTypeAhead } from '../../services/Flight';
 
 const SearchBackend = ({ dataChange }) => {
   const [loading, setLoading] = useState(false);
+  const [airportData, setAirportData] = useState([]);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [trip, setTrip] = useState('Round Trip');
   const [seat, setSeat] = useState('Economy');
   const [roundTripDate, setRoundTripDate] = useState([]);
   const [oneWayDate, setOneWayDate] = useState('');
+
+  useEffect(() => {
+    airportTypeAhead( from )
+    .then( result => {
+      setAirportData(JSON.stringify(result))
+    })
+    .catch( error => console.error(error));
+  }, [from])
+
+  useEffect(() => {
+    airportTypeAhead( to )
+    .then( result => {
+      setAirportData(JSON.stringify(result))
+    })
+    .catch( error => console.error(error));
+  }, [to])
 
   useEffect(() => {
     const today = new Date();
