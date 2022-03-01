@@ -9,6 +9,7 @@ import './App.css';
 
 import ApplicationContainer from './components/ApplicationContainer/ApplicationContainer';
 const Home = lazy(() => import('./pages/Home/Home'));
+const HomeAlternative = lazy(() => import('./pages/HomeAlternative/HomeAlternative'));
 
 const App = () => {
   return (
@@ -17,6 +18,7 @@ const App = () => {
         <Suspense fallback={<LoadingOverlay visible={true} />}>
           <Routes>
             <Route exact path="/" element={ <Home /> } />
+            <Route exact path="/HomeAlternative" element={ <HomeAlternative /> } />
           </Routes>
         </Suspense>
       </Router>

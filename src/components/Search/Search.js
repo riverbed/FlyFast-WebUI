@@ -9,7 +9,7 @@ import airports from './AirportsData.json';
 import { airportFilter, airportInformation } from './AirportInformation';
 import { searchFlight } from '../../services/Flight';
 
-const Searchbar = ({ dataChange }) => {
+const Search = ({ dataChange }) => {
   const [loading, setLoading] = useState(false);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
@@ -162,4 +162,4 @@ const Searchbar = ({ dataChange }) => {
   );
 }
 
-export default Searchbar;
+export default Search;
