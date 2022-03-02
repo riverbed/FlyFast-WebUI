@@ -15,10 +15,14 @@ export async function searchFlight( from, to, departureDate, returnDate, seatTyp
   return response.json();
 }
 
-export async function airportTypeAhead( text ){
+export async function airportTypeAhead( text, limit ){
   const endpoint = `/flightsearchapi/airportypeahead`;
   const search = `?searchtxt=${text}`;
-  const URI = endpoint + search;
+  let limitResult = '';
+  if (limit){
+    limitResult = `&limit=${limit}`;
+  }
+  const URI = endpoint + search + limitResult;
   const response = await fetch(URI);
   return response.json();
 }
