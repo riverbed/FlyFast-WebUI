@@ -5,7 +5,6 @@ import { FaPlaneArrival, FaPlaneDeparture, FaSearch } from "react-icons/fa";
 import { BsCalendarWeek } from "react-icons/bs";
 import { MdAirplanemodeActive, MdOutlineAirlineSeatReclineNormal } from "react-icons/md";
 
-import airports from './AirportsData.json';
 import { airportBackendFilter, airportBackendInformation } from './AirportInformation';
 import { searchFlight, airportTypeAhead } from '../../services/Flight';
 
@@ -20,17 +19,24 @@ const SearchBackend = ({ dataChange }) => {
   const [oneWayDate, setOneWayDate] = useState('');
 
   useEffect(() => {
-    airportTypeAhead( from )
+    if(!from){
+      return setAirportData([]);
+    }
+    airportTypeAhead( from, 5 )
     .then( result => {
-      setAirportData(JSON.stringify(result))
+      console.log(result)
+      setAirportData(result)
     })
     .catch( error => console.error(error));
   }, [from])
 
   useEffect(() => {
-    airportTypeAhead( to )
+    if(!to){
+      return setAirportData([]);
+    }
+    airportTypeAhead( to, 5 )
     .then( result => {
-      setAirportData(JSON.stringify(result))
+      setAirportData(result)
     })
     .catch( error => console.error(error));
   }, [to])
@@ -118,7 +124,7 @@ const SearchBackend = ({ dataChange }) => {
                 icon={<FaPlaneDeparture />}
                 placeholder="From?"
                 itemComponent={airportBackendInformation}
-                data={airports}
+                data={airportData}
                 filter={airportBackendFilter}
                 value={from}
                 onChange={setFrom}
@@ -129,7 +135,7 @@ const SearchBackend = ({ dataChange }) => {
                 icon={<FaPlaneArrival />}
                 placeholder="To?"
                 itemComponent={airportBackendInformation}
-                data={airports}
+                data={airportData}
                 filter={airportBackendFilter}
                 value={to}
                 onChange={setTo}

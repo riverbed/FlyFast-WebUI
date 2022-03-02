@@ -25,12 +25,14 @@ export const airportFilter = (value, item) => (
 
 
 export const airportBackendInformation = forwardRef(
-  ({ name, city, country, value, ...others }, ref) => (
+  ({ name, address, city, country, region, value, ...others }, ref) => (
     <div ref={ref} {...others}>
       <Group noWrap>
         <div>
           <Text>{name} ({value})</Text>
           <Text size="sm" color="dimmed">
+            {address}
+            <br/>
             {city}, {country}
           </Text>
         </div>
@@ -40,8 +42,5 @@ export const airportBackendInformation = forwardRef(
 );
 
 export const airportBackendFilter = (value, item) => (
-  item.name.toLowerCase().replace(/\s/g, '').includes(value.toLowerCase().replace(/\s/g, '')) ||
-  item.city.toLowerCase().replace(/\s/g, '').includes(value.toLowerCase().replace(/\s/g, '')) ||
-  item.country.toLowerCase().replace(/\s/g, '').includes(value.toLowerCase().replace(/\s/g, '')) ||
-  item.value.toLowerCase().replace(/\s/g, '').includes(value.toLowerCase().replace(/\s/g, ''))
+  true
 );
