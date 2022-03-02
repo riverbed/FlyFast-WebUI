@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { Grid, Text } from "@mantine/core";
 
-import Search from '../../components/Search/Search';
+import SearchBackend from '../../components/Search/SearchBackend';
 
-const Home = () => {
+const HomeAlternative = () => {
   const [result, setResult] = useState('');
 
   return (
     <Grid justify="center" align="center">
       <Grid.Col span={10}>
-        <Search 
+        <SearchBackend 
           dataChange={(dataChange) => setResult(dataChange)}
         />
       </Grid.Col>
@@ -22,4 +22,4 @@ const Home = () => {
   );
 }
 
-export default Home;
+export default HomeAlternative;

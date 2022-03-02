@@ -5,18 +5,42 @@ import { FaPlaneArrival, FaPlaneDeparture, FaSearch } from "react-icons/fa";
 import { BsCalendarWeek } from "react-icons/bs";
 import { MdAirplanemodeActive, MdOutlineAirlineSeatReclineNormal } from "react-icons/md";
 
-import airports from './AirportsData.json';
-import { airportFilter, airportInformation } from './AirportInformation';
-import { searchFlight } from '../../services/Flight';
+import { airportBackendFilter, airportBackendInformation } from './AirportInformation';
+import { searchFlight, airportTypeAhead } from '../../services/Flight';
 
-const Searchbar = ({ dataChange }) => {
+const SearchBackend = ({ dataChange }) => {
   const [loading, setLoading] = useState(false);
+  const [airportData, setAirportData] = useState([]);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [trip, setTrip] = useState('Round Trip');
   const [seat, setSeat] = useState('Economy');
   const [roundTripDate, setRoundTripDate] = useState([]);
   const [oneWayDate, setOneWayDate] = useState('');
+
+  useEffect(() => {
+    if(!from){
+      return setAirportData([]);
+    }
+    const limitSet = 5;
+    airportTypeAhead( from, limitSet )
+    .then( result => {
+      setAirportData(result)
+    })
+    .catch( error => console.error(error));
+  }, [from])
+
+  useEffect(() => {
+    if(!to){
+      return setAirportData([]);
+    }
+    const limitSet = 5;
+    airportTypeAhead( to, limitSet )
+    .then( result => {
+      setAirportData(result)
+    })
+    .catch( error => console.error(error));
+  }, [to])
 
   useEffect(() => {
     const today = new Date();
@@ -100,9 +124,9 @@ const Searchbar = ({ dataChange }) => {
                 required
                 icon={<FaPlaneDeparture />}
                 placeholder="From?"
-                itemComponent={airportInformation}
-                data={airports}
-                filter={airportFilter}
+                itemComponent={airportBackendInformation}
+                data={airportData}
+                filter={airportBackendFilter}
                 value={from}
                 onChange={setFrom}
               />
@@ -111,9 +135,9 @@ const Searchbar = ({ dataChange }) => {
                 required
                 icon={<FaPlaneArrival />}
                 placeholder="To?"
-                itemComponent={airportInformation}
-                data={airports}
-                filter={airportFilter}
+                itemComponent={airportBackendInformation}
+                data={airportData}
+                filter={airportBackendFilter}
                 value={to}
                 onChange={setTo}
               />
@@ -162,4 +186,4 @@ const Searchbar = ({ dataChange }) => {
   );
 }
 
-export default Searchbar;
+export default SearchBackend;
