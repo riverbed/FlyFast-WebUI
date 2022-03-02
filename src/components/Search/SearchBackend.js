@@ -22,9 +22,9 @@ const SearchBackend = ({ dataChange }) => {
     if(!from){
       return setAirportData([]);
     }
-    airportTypeAhead( from, 5 )
+    const limitSet = 5;
+    airportTypeAhead( from, limitSet )
     .then( result => {
-      console.log(result)
       setAirportData(result)
     })
     .catch( error => console.error(error));
@@ -34,7 +34,8 @@ const SearchBackend = ({ dataChange }) => {
     if(!to){
       return setAirportData([]);
     }
-    airportTypeAhead( to, 5 )
+    const limitSet = 5;
+    airportTypeAhead( to, limitSet )
     .then( result => {
       setAirportData(result)
     })
