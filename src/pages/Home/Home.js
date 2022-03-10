@@ -10,6 +10,7 @@ const Home = () => {
     <Grid justify="center" align="center">
       <Grid.Col span={10}>
         <Search 
+          useBackend={false}
           dataChange={(dataChange) => setResult(dataChange)}
         />
       </Grid.Col>

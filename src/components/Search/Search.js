@@ -7,10 +7,16 @@ import { BsCalendarWeek } from "react-icons/bs";
 import { MdAirplanemodeActive, MdOutlineAirlineSeatReclineNormal } from "react-icons/md";
 
 import airports from './AirportsData.json';
-import { airportFilter, airportInformation } from './AirportInformation';
+import seatTypes from './SeatData.json';
+import tripTypes from './TripData.json';
 
-const Search = () => {
+import { airportFilter, airportInformation, airportBackendFilter, airportBackendInformation } from './AirportInformation';
+
+import { airportTypeAhead } from '../../services/Flight';
+
+const Search = ({ useBackend }) => {
   const [loading, setLoading] = useState(false);
+  const [airportData, setAirportData] = useState([]);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [trip, setTrip] = useState('Round Trip');
@@ -22,22 +28,38 @@ const Search = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (useBackend) {
+      if (!from){
+        return setAirportData([]);
+      }
+      const limitSet = 5;
+      airportTypeAhead( from, limitSet )
+      .then( result => {
+        setAirportData(result)
+      })
+      .catch( error => console.error(error));
+    }
+  }, [from])
+
+  useEffect(() => {
+    if (useBackend) {
+      if (!to){
+        return setAirportData([]);
+      }
+      const limitSet = 5;
+      airportTypeAhead( to, limitSet )
+      .then( result => {
+        setAirportData(result)
+      })
+      .catch( error => console.error(error));
+    }
+  }, [to])
+
+  useEffect(() => {
     if (trip === 'Round Trip'){
       setTripDate([tripDate[0], new Date(tripDate[0].getTime() + (7 * 24 * 60 * 60 * 1000))]);
     }
   }, [trip])
-
-  const tripTypes = [
-    { value: 'One Way', label: 'One Way' },
-    { value: 'Round Trip', label: 'Round Trip' }
-  ];
-
-  const seatTypes = [
-    { value: 'Economy', label: 'Economy' },
-    { value: 'Premium Economy', label: 'Premium Economy' },
-    { value: 'Business', label: 'Business' },
-    { value: 'First', label: 'First' }
-  ];
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -91,9 +113,9 @@ const Search = () => {
                 required
                 icon={<FaPlaneDeparture />}
                 placeholder="From?"
-                itemComponent={airportInformation}
-                data={airports}
-                filter={airportFilter}
+                itemComponent={useBackend ? airportBackendInformation : airportInformation}
+                data={useBackend ? airportData : airports}
+                filter={useBackend ? airportBackendFilter : airportFilter}
                 value={from}
                 onChange={setFrom}
               />
@@ -102,9 +124,9 @@ const Search = () => {
                 required
                 icon={<FaPlaneArrival />}
                 placeholder="To?"
-                itemComponent={airportInformation}
-                data={airports}
-                filter={airportFilter}
+                itemComponent={useBackend ? airportBackendInformation : airportInformation}
+                data={useBackend ? airportData : airports}
+                filter={useBackend ? airportBackendFilter : airportFilter}
                 value={to}
                 onChange={setTo}
               />
