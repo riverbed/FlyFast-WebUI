@@ -15,26 +15,15 @@ const Search = () => {
   const [to, setTo] = useState('');
   const [trip, setTrip] = useState('Round Trip');
   const [seat, setSeat] = useState('Economy');
-  const [roundTripDate, setRoundTripDate] = useState([]);
-  const [oneWayDate, setOneWayDate] = useState('');
+  const [tripDate, setTripDate] = useState([
+    new Date(new Date().getTime() + (7 * 24 * 60 * 60 * 1000)), 
+    new Date(new Date().getTime() + (14 * 24 * 60 * 60 * 1000))
+  ]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const today = new Date();
-    let useDate = new Date(today.getTime() + (7 * 24 * 60 * 60 * 1000));
-
-    if (trip === 'One Way'){
-      if (roundTripDate[0]) {
-        useDate = roundTripDate[0];
-      }
-      setOneWayDate(useDate);
-    }
-    else if (trip === 'Round Trip'){
-      if (oneWayDate) {
-        useDate = oneWayDate;
-      }
-      let nextDate = new Date(useDate.getTime() + (7 * 24 * 60 * 60 * 1000));
-      setRoundTripDate([useDate, nextDate]);
+    if (trip === 'Round Trip'){
+      setTripDate([tripDate[0], new Date(tripDate[0].getTime() + (7 * 24 * 60 * 60 * 1000))]);
     }
   }, [trip])
 
@@ -55,24 +44,19 @@ const Search = () => {
     setLoading(true);
     const endpoint = `/searchflight`;
     const location = `?from=${from}&to=${to}`;
-    let formattedDepartureDate = '';
-    let departureDate = '';
+    let formattedDepartureDate = (tripDate[0].getMonth() + 1) + '-' + tripDate[0].getDate() + '-' + tripDate[0].getFullYear();
+    let departureDate = `&departure=${formattedDepartureDate}`;
     let returnDate = '';
     const seating = `&seat=${seat}`;
-  
-    if (trip === 'One Way'){
-      formattedDepartureDate = (oneWayDate.getMonth() + 1) + '-' + oneWayDate.getDate() + '-' + oneWayDate.getFullYear();
-    }
-    else if (trip === 'Round Trip'){
-      formattedDepartureDate = (roundTripDate[0].getMonth() + 1) + '-' + roundTripDate[0].getDate() + '-' + roundTripDate[0].getFullYear();
-      let formattedReturnDate = (roundTripDate[1].getMonth() + 1) + '-' + roundTripDate[1].getDate() + '-' + roundTripDate[1].getFullYear();
+
+    if (trip === 'Round Trip'){
+      let formattedReturnDate = (tripDate[1].getMonth() + 1) + '-' + tripDate[1].getDate() + '-' + tripDate[1].getFullYear();
       returnDate = `&return=${formattedReturnDate}`;
     }
-
-    departureDate = `&departure=${formattedDepartureDate}`;
+    
     const URI = endpoint + location + departureDate + returnDate + seating;
-
     navigate(URI);
+
     setLoading(false);
   }
 
@@ -135,8 +119,8 @@ const Search = () => {
                 placeholder="Pick Trip Range"
                 amountOfMonths={2}
                 firstDayOfWeek="sunday"
-                value={roundTripDate}
-                onChange={setRoundTripDate}
+                value={tripDate}
+                onChange={setTripDate}
               />
             }
             { trip === "One Way" &&
@@ -147,8 +131,8 @@ const Search = () => {
                 placeholder="Pick Trip Date"
                 amountOfMonths={1}
                 firstDayOfWeek="sunday"
-                value={oneWayDate}
-                onChange={setOneWayDate}
+                value={tripDate[0]}
+                onChange={setTripDate[0]}
               />
             }
           </Grid.Col>
