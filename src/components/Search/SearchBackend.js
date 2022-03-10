@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Autocomplete, Group, Button, Paper, NativeSelect, Grid } from '@mantine/core';
 import { DateRangePicker, DatePicker } from '@mantine/dates';
 import { FaPlaneArrival, FaPlaneDeparture, FaSearch } from "react-icons/fa";
@@ -6,9 +7,9 @@ import { BsCalendarWeek } from "react-icons/bs";
 import { MdAirplanemodeActive, MdOutlineAirlineSeatReclineNormal } from "react-icons/md";
 
 import { airportBackendFilter, airportBackendInformation } from './AirportInformation';
-import { searchFlight, airportTypeAhead } from '../../services/Flight';
+import { airportTypeAhead } from '../../services/Flight';
 
-const SearchBackend = ({ dataChange }) => {
+const SearchBackend = () => {
   const [loading, setLoading] = useState(false);
   const [airportData, setAirportData] = useState([]);
   const [from, setFrom] = useState('');
@@ -17,6 +18,7 @@ const SearchBackend = ({ dataChange }) => {
   const [seat, setSeat] = useState('Economy');
   const [roundTripDate, setRoundTripDate] = useState([]);
   const [oneWayDate, setOneWayDate] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     if(!from){
@@ -73,23 +75,29 @@ const SearchBackend = ({ dataChange }) => {
     { value: 'First', label: 'First' }
   ];
 
-  async function handleSubmit(e) {
+  function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
+    const endpoint = `/searchflight`;
+    const location = `?from=${from}&to=${to}`;
+    let formattedDepartureDate = '';
+    let departureDate = '';
+    let returnDate = '';
+    const seating = `&seat=${seat}`;
+  
     if (trip === 'One Way'){
-      await searchFlight(from, to, oneWayDate, '', seat)
-      .then( result => {
-        dataChange(JSON.stringify(result));
-      })
-      .catch( error => console.error(error));
+      formattedDepartureDate = (oneWayDate.getMonth() + 1) + '-' + oneWayDate.getDate() + '-' + oneWayDate.getFullYear();
     }
     else if (trip === 'Round Trip'){
-      await searchFlight(from, to, roundTripDate[0], roundTripDate[1], seat)
-      .then( result => {
-        dataChange(JSON.stringify(result));
-      })
-      .catch( error => console.error(error));
+      formattedDepartureDate = (roundTripDate[0].getMonth() + 1) + '-' + roundTripDate[0].getDate() + '-' + roundTripDate[0].getFullYear();
+      let formattedReturnDate = (roundTripDate[1].getMonth() + 1) + '-' + roundTripDate[1].getDate() + '-' + roundTripDate[1].getFullYear();
+      returnDate = `&return=${formattedReturnDate}`;
     }
+
+    departureDate = `&departure=${formattedDepartureDate}`;
+    const URI = endpoint + location + departureDate + returnDate + seating;
+
+    navigate(URI);
     setLoading(false);
   }
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Autocomplete, Group, Button, Paper, NativeSelect, Grid } from '@mantine/core';
 import { DateRangePicker, DatePicker } from '@mantine/dates';
 import { FaPlaneArrival, FaPlaneDeparture, FaSearch } from "react-icons/fa";
@@ -7,9 +8,8 @@ import { MdAirplanemodeActive, MdOutlineAirlineSeatReclineNormal } from "react-i
 
 import airports from './AirportsData.json';
 import { airportFilter, airportInformation } from './AirportInformation';
-import { searchFlight } from '../../services/Flight';
 
-const Search = ({ dataChange }) => {
+const Search = () => {
   const [loading, setLoading] = useState(false);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
@@ -17,6 +17,7 @@ const Search = ({ dataChange }) => {
   const [seat, setSeat] = useState('Economy');
   const [roundTripDate, setRoundTripDate] = useState([]);
   const [oneWayDate, setOneWayDate] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const today = new Date();
@@ -49,23 +50,29 @@ const Search = ({ dataChange }) => {
     { value: 'First', label: 'First' }
   ];
 
-  async function handleSubmit(e) {
+  function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
+    const endpoint = `/searchflight`;
+    const location = `?from=${from}&to=${to}`;
+    let formattedDepartureDate = '';
+    let departureDate = '';
+    let returnDate = '';
+    const seating = `&seat=${seat}`;
+  
     if (trip === 'One Way'){
-      await searchFlight(from, to, oneWayDate, '', seat)
-      .then( result => {
-        dataChange(JSON.stringify(result));
-      })
-      .catch( error => console.error(error));
+      formattedDepartureDate = (oneWayDate.getMonth() + 1) + '-' + oneWayDate.getDate() + '-' + oneWayDate.getFullYear();
     }
     else if (trip === 'Round Trip'){
-      await searchFlight(from, to, roundTripDate[0], roundTripDate[1], seat)
-      .then( result => {
-        dataChange(JSON.stringify(result));
-      })
-      .catch( error => console.error(error));
+      formattedDepartureDate = (roundTripDate[0].getMonth() + 1) + '-' + roundTripDate[0].getDate() + '-' + roundTripDate[0].getFullYear();
+      let formattedReturnDate = (roundTripDate[1].getMonth() + 1) + '-' + roundTripDate[1].getDate() + '-' + roundTripDate[1].getFullYear();
+      returnDate = `&return=${formattedReturnDate}`;
     }
+
+    departureDate = `&departure=${formattedDepartureDate}`;
+    const URI = endpoint + location + departureDate + returnDate + seating;
+
+    navigate(URI);
     setLoading(false);
   }
 
