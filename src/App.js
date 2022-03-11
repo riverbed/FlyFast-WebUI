@@ -10,6 +10,7 @@ import './App.css';
 import ApplicationContainer from './components/ApplicationContainer/ApplicationContainer';
 const Home = lazy(() => import('./pages/Home/Home'));
 const HomeAlternative = lazy(() => import('./pages/HomeAlternative/HomeAlternative'));
+const SearchFlight = lazy(() => import('./pages/SearchFlight/SearchFlight'));
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
           <Routes>
             <Route exact path="/" element={ <Home /> } />
             <Route exact path="/HomeAlternative" element={ <HomeAlternative /> } />
+            <Route path="/searchflight" element={ <SearchFlight /> } />
           </Routes>
         </Suspense>
       </Router>

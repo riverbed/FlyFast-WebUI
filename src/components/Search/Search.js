@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Autocomplete, Group, Button, Paper, NativeSelect, Grid } from '@mantine/core';
 import { DateRangePicker, DatePicker } from '@mantine/dates';
 import { FaPlaneArrival, FaPlaneDeparture, FaSearch } from "react-icons/fa";
@@ -6,66 +7,82 @@ import { BsCalendarWeek } from "react-icons/bs";
 import { MdAirplanemodeActive, MdOutlineAirlineSeatReclineNormal } from "react-icons/md";
 
 import airports from './AirportsData.json';
-import { airportFilter, airportInformation } from './AirportInformation';
-import { searchFlight } from '../../services/Flight';
+import seatTypes from './SeatData.json';
+import tripTypes from './TripData.json';
 
-const Search = ({ dataChange }) => {
+import { airportFilter, airportInformation, airportBackendFilter, airportBackendInformation } from './AirportInformation';
+
+import { airportTypeAhead } from '../../services/Flight';
+
+const Search = ({ fromData, toData, seatData, tripDateData, useBackend }) => {
   const [loading, setLoading] = useState(false);
+  const [airportData, setAirportData] = useState([]);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [trip, setTrip] = useState('Round Trip');
   const [seat, setSeat] = useState('Economy');
-  const [roundTripDate, setRoundTripDate] = useState([]);
-  const [oneWayDate, setOneWayDate] = useState('');
+  const [tripDate, setTripDate] = useState([
+    new Date(new Date().getTime() + (7 * 24 * 60 * 60 * 1000)), 
+    new Date(new Date().getTime() + (14 * 24 * 60 * 60 * 1000))
+  ]);
+  const LIMITSET = 5;
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const today = new Date();
-    let useDate = new Date(today.getTime() + (7 * 24 * 60 * 60 * 1000));
+    setFrom(fromData ? fromData : '');
+    setTo(toData ? toData : '');
+    setSeat(seatData ? seatData : 'Economy');
+    setTrip(tripDateData ? (tripDateData[1] ? 'Round Trip' : 'One Way') : 'Round Trip');
+    setTripDate(tripDateData ? 
+      [
+        new Date(tripDateData[0]), 
+        tripDateData[1] ? new Date(tripDateData[1]) : new Date(new Date(tripDateData[0]).getTime() + (7 * 24 * 60 * 60 * 1000))
+      ]
+      :
+      [ 
+        new Date(new Date().getTime() + (7 * 24 * 60 * 60 * 1000)), 
+        new Date(new Date().getTime() + (14 * 24 * 60 * 60 * 1000))
+      ]);
+  }, [fromData, toData, seatData, tripDateData])
 
-    if (trip === 'One Way'){
-      if (roundTripDate[0]) {
-        useDate = roundTripDate[0];
-      }
-      setOneWayDate(useDate);
+  useEffect(() => {
+    if (useBackend) {
+      airportTypeAhead( from, LIMITSET )
+      .then( result => {
+        setAirportData(result)
+      })
+      .catch( error => console.error(error));
     }
-    else if (trip === 'Round Trip'){
-      if (oneWayDate) {
-        useDate = oneWayDate;
-      }
-      let nextDate = new Date(useDate.getTime() + (7 * 24 * 60 * 60 * 1000));
-      setRoundTripDate([useDate, nextDate]);
+  }, [from, useBackend])
+
+  useEffect(() => {
+    if (useBackend) {
+      airportTypeAhead( to, LIMITSET )
+      .then( result => {
+        setAirportData(result)
+      })
+      .catch( error => console.error(error));
     }
-  }, [trip])
+  }, [to, useBackend])
 
-  const tripTypes = [
-    { value: 'One Way', label: 'One Way' },
-    { value: 'Round Trip', label: 'Round Trip' }
-  ];
-
-  const seatTypes = [
-    { value: 'Economy', label: 'Economy' },
-    { value: 'Premium Economy', label: 'Premium Economy' },
-    { value: 'Business', label: 'Business' },
-    { value: 'First', label: 'First' }
-  ];
-
-  async function handleSubmit(e) {
+  function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
-    if (trip === 'One Way'){
-      await searchFlight(from, to, oneWayDate, '', seat)
-      .then( result => {
-        dataChange(JSON.stringify(result));
-      })
-      .catch( error => console.error(error));
+    const endpoint = `/searchflight`;
+    const location = `?from=${from}&to=${to}`;
+    let formattedDepartureDate = (tripDate[0].getMonth() + 1) + '-' + tripDate[0].getDate() + '-' + tripDate[0].getFullYear();
+    let departureDate = `&departure=${formattedDepartureDate}`;
+    let returnDate = '';
+    const seating = `&seat=${seat}`;
+
+    if (trip === 'Round Trip'){
+      let formattedReturnDate = (tripDate[1].getMonth() + 1) + '-' + tripDate[1].getDate() + '-' + tripDate[1].getFullYear();
+      returnDate = `&return=${formattedReturnDate}`;
     }
-    else if (trip === 'Round Trip'){
-      await searchFlight(from, to, roundTripDate[0], roundTripDate[1], seat)
-      .then( result => {
-        dataChange(JSON.stringify(result));
-      })
-      .catch( error => console.error(error));
-    }
+    
+    const URI = endpoint + location + departureDate + returnDate + seating;
+    navigate(URI);
+
     setLoading(false);
   }
 
@@ -100,9 +117,9 @@ const Search = ({ dataChange }) => {
                 required
                 icon={<FaPlaneDeparture />}
                 placeholder="From?"
-                itemComponent={airportInformation}
-                data={airports}
-                filter={airportFilter}
+                itemComponent={useBackend ? airportBackendInformation : airportInformation}
+                data={useBackend ? airportData : airports}
+                filter={useBackend ? airportBackendFilter : airportFilter}
                 value={from}
                 onChange={setFrom}
               />
@@ -111,9 +128,9 @@ const Search = ({ dataChange }) => {
                 required
                 icon={<FaPlaneArrival />}
                 placeholder="To?"
-                itemComponent={airportInformation}
-                data={airports}
-                filter={airportFilter}
+                itemComponent={useBackend ? airportBackendInformation : airportInformation}
+                data={useBackend ? airportData : airports}
+                filter={useBackend ? airportBackendFilter : airportFilter}
                 value={to}
                 onChange={setTo}
               />
@@ -128,8 +145,8 @@ const Search = ({ dataChange }) => {
                 placeholder="Pick Trip Range"
                 amountOfMonths={2}
                 firstDayOfWeek="sunday"
-                value={roundTripDate}
-                onChange={setRoundTripDate}
+                value={tripDate}
+                onChange={setTripDate}
               />
             }
             { trip === "One Way" &&
@@ -140,8 +157,8 @@ const Search = ({ dataChange }) => {
                 placeholder="Pick Trip Date"
                 amountOfMonths={1}
                 firstDayOfWeek="sunday"
-                value={oneWayDate}
-                onChange={setOneWayDate}
+                value={tripDate[0]}
+                onChange={(input) => setTripDate([input, new Date(input.getTime() + (7 * 24 * 60 * 60 * 1000))])}
               />
             }
           </Grid.Col>
