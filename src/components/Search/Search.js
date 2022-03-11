@@ -14,7 +14,7 @@ import { airportFilter, airportInformation, airportBackendFilter, airportBackend
 
 import { airportTypeAhead } from '../../services/Flight';
 
-const Search = ({ useBackend }) => {
+const Search = ({ fromData, toData, seatData, tripDateData, useBackend }) => {
   const [loading, setLoading] = useState(false);
   const [airportData, setAirportData] = useState([]);
   const [from, setFrom] = useState('');
@@ -27,6 +27,23 @@ const Search = ({ useBackend }) => {
   ]);
   const LIMITSET = 5;
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setFrom(fromData ? fromData : '');
+    setTo(toData ? toData : '');
+    setSeat(seatData ? seatData : 'Economy');
+    setTrip(tripDateData[1] ? 'Round Trip' : 'One Way');
+    setTripDate(tripDateData ? 
+      [
+        new Date(tripDateData[0]), 
+        tripDateData[1] ? new Date(tripDateData[1]) : new Date(new Date(tripDateData[0]).getTime() + (7 * 24 * 60 * 60 * 1000))
+      ]
+      :
+      [ 
+        new Date(new Date().getTime() + (7 * 24 * 60 * 60 * 1000)), 
+        new Date(new Date().getTime() + (14 * 24 * 60 * 60 * 1000))
+      ]);
+  }, [fromData, toData, seatData, tripDateData])
 
   useEffect(() => {
     if (useBackend) {
