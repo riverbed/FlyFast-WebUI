@@ -25,41 +25,28 @@ const Search = ({ useBackend }) => {
     new Date(new Date().getTime() + (7 * 24 * 60 * 60 * 1000)), 
     new Date(new Date().getTime() + (14 * 24 * 60 * 60 * 1000))
   ]);
+  const LIMITSET = 5;
   const navigate = useNavigate();
 
   useEffect(() => {
     if (useBackend) {
-      if (!from){
-        return setAirportData([]);
-      }
-      const limitSet = 5;
-      airportTypeAhead( from, limitSet )
+      airportTypeAhead( from, LIMITSET )
       .then( result => {
         setAirportData(result)
       })
       .catch( error => console.error(error));
     }
-  }, [from])
+  }, [from, useBackend])
 
   useEffect(() => {
     if (useBackend) {
-      if (!to){
-        return setAirportData([]);
-      }
-      const limitSet = 5;
-      airportTypeAhead( to, limitSet )
+      airportTypeAhead( to, LIMITSET )
       .then( result => {
         setAirportData(result)
       })
       .catch( error => console.error(error));
     }
-  }, [to])
-
-  useEffect(() => {
-    if (trip === 'Round Trip'){
-      setTripDate([tripDate[0], new Date(tripDate[0].getTime() + (7 * 24 * 60 * 60 * 1000))]);
-    }
-  }, [trip])
+  }, [to, useBackend])
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -154,7 +141,7 @@ const Search = ({ useBackend }) => {
                 amountOfMonths={1}
                 firstDayOfWeek="sunday"
                 value={tripDate[0]}
-                onChange={setTripDate[0]}
+                onChange={(input) => setTripDate([input, new Date(input.getTime() + (7 * 24 * 60 * 60 * 1000))])}
               />
             }
           </Grid.Col>

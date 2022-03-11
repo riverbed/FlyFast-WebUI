@@ -16,6 +16,9 @@ export async function searchFlight( from, to, departureDate, returnDate, seatTyp
 }
 
 export async function airportTypeAhead( text, limit ){
+  if (!text){
+    return [];
+  }
   const endpoint = `/flightsearchapi/airportypeahead`;
   const search = `?searchtxt=${text}`;
   let limitResult = '';
