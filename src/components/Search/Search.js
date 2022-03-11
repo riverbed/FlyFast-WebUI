@@ -32,7 +32,7 @@ const Search = ({ fromData, toData, seatData, tripDateData, useBackend }) => {
     setFrom(fromData ? fromData : '');
     setTo(toData ? toData : '');
     setSeat(seatData ? seatData : 'Economy');
-    setTrip(tripDateData[1] ? 'Round Trip' : 'One Way');
+    setTrip(tripDateData ? (tripDateData[1] ? 'Round Trip' : 'One Way') : 'Round Trip');
     setTripDate(tripDateData ? 
       [
         new Date(tripDateData[0]), 
