@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Card, Group, Text, Collapse, ActionIcon } from '@mantine/core';
+import { Card, Group, Text, Collapse, ActionIcon, Divider } from '@mantine/core';
 import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
 
 import FlightDetails from './FlightDetails';
@@ -8,7 +8,7 @@ const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
   const [openFlightDetails, setOpenFlightDetails] = useState(false);
 
   return (
-    <Card radius="md" withBorder>
+    <Card radius="md" m="xs" withBorder>
       <Group position="apart">
         <Group position="center" spacing={0} direction="column">
           <Text>
@@ -40,6 +40,7 @@ const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
         </Group>
       </Group>
       <Collapse in={openFlightDetails}>
+        <Divider my="sm" />
         <FlightDetails flights={flights} />
       </Collapse>
     </Card>

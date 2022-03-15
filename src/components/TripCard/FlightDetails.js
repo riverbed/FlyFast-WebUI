@@ -4,8 +4,8 @@ const FlightDetails = ({ flights }) => {
   return (
     <>
       {flights.map((flight, index) => (
-        <Group key={index} position="apart">
-          <Group position="center" spacing="xs" direction="column">
+        <Group key={index} position="apart" mt="xs">
+          <Group position="center" spacing={0} direction="column">
             <Text>
               {flight.flightNumber}
             </Text>
@@ -13,7 +13,7 @@ const FlightDetails = ({ flights }) => {
               {flight.airline}
             </Text>
           </Group>
-          <Group position="center" spacing="xs" direction="column">
+          <Group position="center" spacing={0} direction="column">
             <Text>
               {flight.from} - {flight.to}
             </Text>
@@ -25,7 +25,7 @@ const FlightDetails = ({ flights }) => {
             {flight.seat}
           </Text>
           <Text>
-            {flight.fare}
+            ${flight.fare}
           </Text>
         </Group>
       ))}
