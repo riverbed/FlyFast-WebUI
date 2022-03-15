@@ -1,42 +1,47 @@
-import { Card, Group, Text } from '@mantine/core';
+import { useState } from 'react';
+import { Card, Group, Text, Collapse, ActionIcon } from '@mantine/core';
+import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
+
+import FlightDetails from './FlightDetails';
 
 const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
+  const [openFlightDetails, setOpenFlightDetails] = useState(false);
+
   return (
     <Card radius="md" withBorder>
       <Group position="apart">
-        <Text>
-          {departureTime} - {arrivalTime}
-        </Text>
-        <Group position="center" direction="column">
+        <Group position="center" spacing={0} direction="column">
           <Text>
-            Total Time
+            {departureTime} - {arrivalTime}
           </Text>
           <Text>
             {from} - {to}
           </Text>
         </Group>
-        <Group position="center" direction="column">
-          {flights.map((flight, index) => (
-            <div key={index}>
-              <Text>
-                {flight.flightNumber}
-              </Text>
-              <Text>
-                {flight.from} - {flight.to}
-              </Text>
-              <Text>
-                {flight.departureTime} - {flight.arrivalTime}
-              </Text>
-              <Text>
-                {flight.seat}
-              </Text>
-            </div>
-          ))}
+        <Group position="center" spacing={0} direction="column">
+          <Text>
+            Total Time: 7 Hours
+          </Text>
+          <Text>
+            Total Flights: {flights.length}
+          </Text>
         </Group>
-        <Text weight={700}>
-          ${fare}
-        </Text>
+        <Group>
+          <Text weight={700}>
+            ${fare}
+          </Text>
+          <ActionIcon onClick={() => setOpenFlightDetails((open) => !open)}>
+            {openFlightDetails ?
+              <MdOutlineArrowDropUp />
+              :
+              <MdOutlineArrowDropDown />
+            }
+          </ActionIcon>
+        </Group>
       </Group>
+      <Collapse in={openFlightDetails}>
+        <FlightDetails flights={flights} />
+      </Collapse>
     </Card>
   )
 }

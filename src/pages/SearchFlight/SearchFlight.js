@@ -17,24 +17,28 @@ const SearchFlight = () => {
       'flights': [
         { 
           'flightNumber': '113',
-          "from": 'LAX', 
-          "to": 'LGA', 
-          "departureTime": '10:37', 
-          "arrivalTime": '15:37', 
-          "seat": 'Economy'
+          'airline': 'ABC Airlines',
+          'from': 'LAX', 
+          'to': 'LGA', 
+          'departureTime': '10:37', 
+          'arrivalTime': '15:37', 
+          'seat': 'Economy',
+          'fare': '200'
         },
         { 
           'flightNumber': '117',
-          "from": 'LGA', 
-          "to": 'JFK', 
-          "departureTime": '16:37', 
-          "arrivalTime": '17:37', 
-          "seat": 'Economy'
+          'airline': 'ABC Airlines',
+          'from': 'LGA', 
+          'to': 'JFK', 
+          'departureTime': '16:37', 
+          'arrivalTime': '17:37', 
+          'seat': 'Economy',
+          'fare': '100'
         }
       ],
-      "departureTime": '10:37', 
-      "arrivalTime": '17:37', 
-      "fare": '300'
+      'departureTime': '10:37', 
+      'arrivalTime': '17:37', 
+      'fare': '300'
     }
   ];
 
