@@ -6,6 +6,8 @@ import { FaPlaneArrival, FaPlaneDeparture, FaSearch } from "react-icons/fa";
 import { BsCalendarWeek } from "react-icons/bs";
 import { MdAirplanemodeActive, MdOutlineAirlineSeatReclineNormal } from "react-icons/md";
 
+import { traceSpan } from '../../services/Tracing';
+
 import airports from './AirportsData.json';
 import seatTypes from './SeatData.json';
 import tripTypes from './TripData.json';
@@ -92,7 +94,7 @@ const Search = ({ fromData, toData, seatData, tripDateData, useBackend }) => {
       shadow='sm'
       withBorder
     >
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={(e) => {traceSpan('Flight Search Button Clicked', handleSubmit(e)) }}>
         <Group my="sm">
           <NativeSelect
             required
