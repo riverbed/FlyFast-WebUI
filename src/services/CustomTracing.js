@@ -1,11 +1,10 @@
-import { getWebAutoInstrumentations } from '@opentelemetry/auto-instrumentations-web';
+import { context, trace } from '@opentelemetry/api';
 import { Resource } from '@opentelemetry/resources';
 import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
 import { CollectorTraceExporter } from '@opentelemetry/exporter-collector';
 import { ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { ZoneContextManager } from '@opentelemetry/context-zone';
 import { B3Propagator } from '@opentelemetry/propagator-b3';
-import { registerInstrumentations } from '@opentelemetry/instrumentation';
 
 const traceEndpoint = '/v1/traces';
 const serviceName = 'FlyFast-WebUI';
@@ -26,13 +25,15 @@ provider.register({
   propagator: new B3Propagator()
 });
 
-registerInstrumentations({
-  instrumentations: [
-    getWebAutoInstrumentations({
-      '@opentelemetry/instrumentation-xml-http-request': {
-        clearTimingResources: true,
-      },
-    })
-  ],
-  tracerProvider: provider
-})
+const webTracerWithZone = provider.getTracer(serviceName);
+
+// Custom Instrumentation
+export const traceSpan = (name, funct) => {
+  const singleSpan = webTracerWithZone.startSpan(name);
+  return context.with(trace.setSpan(context.active(), singleSpan), () => {
+    funct().then((_data) => {
+      trace.getSpan(context.active()).addEvent(`${name} completed`);
+      singleSpan.end();
+    });
+  });
+}
