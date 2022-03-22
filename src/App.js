@@ -8,7 +8,6 @@ import {
 import './App.css';
 
 import ApplicationContainer from './components/ApplicationContainer/ApplicationContainer';
-import './services/Tracing';
 
 const Home = lazy(() => import('./pages/Home/Home'));
 const HomeAlternative = lazy(() => import('./pages/HomeAlternative/HomeAlternative'));
