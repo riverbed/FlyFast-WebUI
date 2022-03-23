@@ -1,4 +1,4 @@
-import { context, trace } from '@opentelemetry/api';
+import { context, trace, SpanKind, SpanStatusCode } from '@opentelemetry/api';
 import { Resource } from '@opentelemetry/resources';
 import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
 import { CollectorTraceExporter } from '@opentelemetry/exporter-collector';
@@ -25,15 +25,37 @@ provider.register({
   propagator: new B3Propagator()
 });
 
-const webTracerWithZone = provider.getTracer(serviceName);
+// Custom Instrumentation. Make sure an async function is being called for optimal results.
+export const customTracing = (name, funct) => {
+  const webTracerWithZone = provider.getTracer(serviceName);
 
-// Custom Instrumentation
-export const traceSpan = (name, funct) => {
-  const singleSpan = webTracerWithZone.startSpan(name);
+  const singleSpan = webTracerWithZone.startSpan(name, {
+    attributes: {
+      // Attributes from the HTTP trace semantic conventions
+      // https://opentelemetry.io/docs/reference/specification/trace/semantic_conventions/http
+      // https://github.com/open-telemetry/opentelemetry-specification/blob/main/specification/trace/semantic_conventions/http.md#http-client
+      "http.url": window.location.href,
+      "http.scheme": window.location.protocol,
+      "http.host": window.location.host,
+      "http.target": window.location.pathname,
+      "net.peer.name": window.location.hostname,
+      "net.peer.port": window.location.port
+    },
+    // This span describes a request to some remote service
+    kind: SpanKind.CLIENT
+  });
+
   return context.with(trace.setSpan(context.active(), singleSpan), () => {
-    funct().then((_data) => {
-      trace.getSpan(context.active()).addEvent(`${name} completed`);
+    try {
+      funct.then(() => {
+        trace.getSpan(context.active()).addEvent(`${name} Completed`);
+        singleSpan.setStatus({ code: SpanStatusCode.OK });
+        singleSpan.end();
+      });
+    } catch (error) {
+      singleSpan.setStatus({ code: SpanStatusCode.ERROR });
+      console.error(error);
       singleSpan.end();
-    });
+    }
   });
 }
