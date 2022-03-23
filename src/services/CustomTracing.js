@@ -6,7 +6,7 @@ import { ConsoleSpanExporter, SimpleSpanProcessor, BatchSpanProcessor } from '@o
 import { ZoneContextManager } from '@opentelemetry/context-zone';
 import { B3Propagator } from '@opentelemetry/propagator-b3';
 
-const traceEndpoint = '/v1/traces';
+const traceEndpoint = '/tracingapi/v1/traces';
 const serviceName = 'FlyFast-WebUI';
 
 // Service name used to identify the instance

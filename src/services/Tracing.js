@@ -11,7 +11,7 @@ import { XMLHttpRequestInstrumentation } from '@opentelemetry/instrumentation-xm
 import { BaseOpenTelemetryComponent } from '@opentelemetry/plugin-react-load';
 
 const Tracing = () => {
-  const traceEndpoint = '/v1/traces';
+  const traceEndpoint = '/tracingapi/v1/traces';
   const serviceName = 'FlyFast-WebUI';
   
   // Service name used to identify the instance
