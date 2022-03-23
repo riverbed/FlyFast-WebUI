@@ -2,7 +2,7 @@ import { context, trace, SpanKind, SpanStatusCode } from '@opentelemetry/api';
 import { Resource } from '@opentelemetry/resources';
 import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
 import { CollectorTraceExporter } from '@opentelemetry/exporter-collector';
-import { ConsoleSpanExporter, SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { ConsoleSpanExporter, SimpleSpanProcessor, BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { ZoneContextManager } from '@opentelemetry/context-zone';
 import { B3Propagator } from '@opentelemetry/propagator-b3';
 
@@ -15,9 +15,18 @@ const resource = new Resource({ 'service.name': serviceName });
 const collector = new CollectorTraceExporter({ url: traceEndpoint });
 
 const provider = new WebTracerProvider({ resource });
-provider.addSpanProcessor(new SimpleSpanProcessor(collector));
-// Sends the span to the console to view
-provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
+
+
+if (process.env.NODE_ENV === 'production'){
+  // Typically, the BatchSpanProcessor will be more suitable for production environments than the SimpleSpanProcessor.
+  // Use the BatchSpanProcessor to export spans in batches in order to more efficiently use resources.
+  provider.addSpanProcessor(new BatchSpanProcessor(collector));
+}
+else {
+  // Sends the span to the console to view
+  provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
+  provider.addSpanProcessor(new SimpleSpanProcessor(collector));
+}
 
 // Changing default contextManager to use ZoneContextManager - supports asynchronous operations - optional
 provider.register({ 
