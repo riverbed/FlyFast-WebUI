@@ -12,7 +12,7 @@ module.exports = function(app) {
     target: process.env.REACT_APP_OPENTELEMETRY_ENDPOINT,
     changeOrigin: true,
     pathRewrite: {
-      "/tracingapi": "/"
+      "/tracingapi": ""
     }
   }));
 };
