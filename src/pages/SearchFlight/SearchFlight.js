@@ -42,7 +42,8 @@ const SearchFlight = () => {
         'arrivalTime': '17:37', 
         'fare': '300'
       }
-    ]
+    ],
+    []
   ];
 
   useEffect(() => {
