@@ -1,6 +1,8 @@
 import { Group, Text } from '@mantine/core';
 
-const FlightDetails = ({ flights }) => {
+const FlightDetails = ({ flights, timeConversion }) => {
+  const cardTimeOption = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+
   return (
     <>
       {flights.map((flight, index) => (
@@ -18,7 +20,7 @@ const FlightDetails = ({ flights }) => {
               {flight.from} - {flight.to}
             </Text>
             <Text>
-              {flight.departureTime} - {flight.arrivalTime}
+              {timeConversion(flight.departureTime, cardTimeOption)} - {timeConversion(flight.arrivalTime, cardTimeOption)}
             </Text>
           </Group>
           <Text>
