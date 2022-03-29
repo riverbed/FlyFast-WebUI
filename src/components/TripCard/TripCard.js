@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, Grid, Group, Text, Collapse, ActionIcon, Divider } from '@mantine/core';
 import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
 
@@ -7,6 +7,10 @@ import FlightDetails from './FlightDetails';
 const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
   const [openFlightDetails, setOpenFlightDetails] = useState(false);
   const cardTimeOption = { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+
+  useEffect(() => {
+    setOpenFlightDetails(false);
+  }, [from, to, flights, departureTime, arrivalTime, fare])
 
   function timeConversion(timeFormat, options){
     const date = new Date(timeFormat);

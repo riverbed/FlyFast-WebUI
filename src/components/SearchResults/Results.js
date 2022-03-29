@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Pagination } from '@mantine/core';
 
 import NoResults from './NoResults';
@@ -7,6 +7,14 @@ import TripCard from '../TripCard/TripCard';
 const Results = ({ fromData, toData, resultsData }) => {
   const [activePage, setPage] = useState(1);
   const DATA_PER_PAGE = 10;
+
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: 'smooth'
+    });
+  }, [activePage])
 
   function pageinate(arrData){
     return arrData.slice((activePage - 1) * DATA_PER_PAGE, activePage * DATA_PER_PAGE);
