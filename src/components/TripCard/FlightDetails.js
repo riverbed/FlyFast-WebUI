@@ -17,10 +17,10 @@ const FlightDetails = ({ flights, timeConversion }) => {
           </Group>
           <Group position="center" spacing={0} direction="column">
             <Text>
-              {flight.from} - {flight.to}
+              {timeConversion(flight.departureTime, cardTimeOption)} - {timeConversion(flight.arrivalTime, cardTimeOption)}
             </Text>
             <Text>
-              {timeConversion(flight.departureTime, cardTimeOption)} - {timeConversion(flight.arrivalTime, cardTimeOption)}
+              {flight.from} - {flight.to}
             </Text>
           </Group>
           <Text>

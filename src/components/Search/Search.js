@@ -10,7 +10,7 @@ import airports from './AirportsData.json';
 import seatTypes from './SeatData.json';
 import tripTypes from './TripData.json';
 
-import { airportFilter, airportInformation, airportBackendFilter, airportBackendInformation } from './AirportInformation';
+import { airportFilter, airportInformation, airportBackendFilter } from './AirportInformation';
 
 import { airportTypeAhead } from '../../services/Flight';
 
@@ -117,7 +117,7 @@ const Search = ({ fromData, toData, seatData, tripDateData, useBackend }) => {
                 required
                 icon={<FaPlaneDeparture />}
                 placeholder="From?"
-                itemComponent={useBackend ? airportBackendInformation : airportInformation}
+                itemComponent={airportInformation}
                 data={useBackend ? airportData : airports}
                 filter={useBackend ? airportBackendFilter : airportFilter}
                 value={from}
@@ -128,7 +128,7 @@ const Search = ({ fromData, toData, seatData, tripDateData, useBackend }) => {
                 required
                 icon={<FaPlaneArrival />}
                 placeholder="To?"
-                itemComponent={useBackend ? airportBackendInformation : airportInformation}
+                itemComponent={airportInformation}
                 data={useBackend ? airportData : airports}
                 filter={useBackend ? airportBackendFilter : airportFilter}
                 value={to}
