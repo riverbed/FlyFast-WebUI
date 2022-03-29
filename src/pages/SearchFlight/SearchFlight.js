@@ -11,47 +11,18 @@ const SearchFlight = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [overlayShow, setOverlayShow] = useState(false);
   const [result, setResult] = useState([[]]);
-  const testResult = [
-    [
-      {
-        'from': 'LAX', 
-        'to': 'JFK', 
-        'flights': [
-          { 
-            'flightNumber': '113',
-            'airline': 'ABC Airlines',
-            'from': 'LAX', 
-            'to': 'LGA', 
-            'departureTime': '10:37', 
-            'arrivalTime': '15:37', 
-            'seat': 'Economy',
-            'fare': '200'
-          },
-          { 
-            'flightNumber': '117',
-            'airline': 'ABC Airlines',
-            'from': 'LGA', 
-            'to': 'JFK', 
-            'departureTime': '16:37', 
-            'arrivalTime': '17:37', 
-            'seat': 'Economy',
-            'fare': '100'
-          }
-        ],
-        'departureTime': '10:37', 
-        'arrivalTime': '17:37', 
-        'fare': '300'
-      }
-    ],
-    []
-  ];
 
   useEffect(() => {
     async function retrieveFlight(from, to, departureDate, returnDate, seat){
       setOverlayShow(true);
       await searchFlight(from, to, departureDate, returnDate, seat)
       .then( result => {
-        setResult(JSON.stringify(result));
+        try {
+          setResult(JSON.parse(JSON.stringify(result)));
+        } catch (error) {
+          console.error(error);
+          setResult([[]]);
+        }
       })
       .catch( error => console.error(error) );
       setOverlayShow(false);
@@ -75,7 +46,7 @@ const SearchFlight = () => {
         <SearchResults
           fromData={searchParams.get('from')}
           toData={searchParams.get('to')}
-          results={testResult}
+          results={result}
         />
       </Grid.Col>
     </Grid>

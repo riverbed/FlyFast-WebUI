@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Stepper } from "@mantine/core";
 
 import Results from './Results';
@@ -7,6 +7,10 @@ import { ImAirplane, ImHome, ImCart } from "react-icons/im";
 
 const SearchResults = ({ fromData, toData, results }) => {
   const [activeStep, setActiveStep] = useState(0);
+
+  useEffect(() => {
+    setActiveStep(0);
+  }, [results])
 
   return (
     <Stepper active={activeStep} onStepClick={setActiveStep} breakpoint="xs">
