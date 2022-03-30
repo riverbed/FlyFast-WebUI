@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Grid, Group, Text, Collapse, ActionIcon, Divider } from '@mantine/core';
 import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
+import { BsFillCartPlusFill } from 'react-icons/bs';
 
 import FlightDetails from './FlightDetails';
 
@@ -63,6 +64,9 @@ const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
                 :
                 <MdOutlineArrowDropDown />
               }
+            </ActionIcon>
+            <ActionIcon>
+              <BsFillCartPlusFill />
             </ActionIcon>
           </Group>
         </Grid.Col>
