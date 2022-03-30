@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, Grid, Group, Text, Collapse, ActionIcon, Divider } from '@mantine/core';
 import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
+import { BsFillCartPlusFill } from 'react-icons/bs';
 
 import FlightDetails from './FlightDetails';
 
@@ -27,6 +28,15 @@ const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
     let totalTime = dateHours > 0 ? dateHours + " Hours " : " ";
     totalTime += dateMinutes > 0 ? dateMinutes + " Minutes" : "";
     return totalTime;
+  }
+
+  function addToCart(e, flights){
+    e.preventDefault();
+    let storedFlights = [];
+    if (localStorage.getItem('cart')){
+      storedFlights = JSON.parse(localStorage.getItem('cart'));
+    }
+    localStorage.setItem('cart', JSON.stringify([...storedFlights, ...flights]));
   }
 
   return (
@@ -64,12 +74,15 @@ const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
                 <MdOutlineArrowDropDown />
               }
             </ActionIcon>
+            <ActionIcon onClick={(e) => addToCart(e, flights)}>
+              <BsFillCartPlusFill />
+            </ActionIcon>
           </Group>
         </Grid.Col>
       </Grid>
       <Collapse in={openFlightDetails}>
         <Divider my="sm" />
-        <FlightDetails flights={flights} timeConversion={timeConversion} />
+        <FlightDetails flights={flights} timeConversion={timeConversion} addToCart={addToCart} />
       </Collapse>
     </Card>
   )
