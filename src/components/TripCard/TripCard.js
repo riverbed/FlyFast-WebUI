@@ -30,6 +30,15 @@ const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
     return totalTime;
   }
 
+  function addToCart(e, flights){
+    e.preventDefault();
+    let storedFlights = [];
+    if (localStorage.getItem('cart')){
+      storedFlights = JSON.parse(localStorage.getItem('cart'));
+    }
+    localStorage.setItem('cart', JSON.stringify([...storedFlights, ...flights]));
+  }
+
   return (
     <Card radius="md" m="xs" withBorder>
       <Grid>
@@ -65,7 +74,7 @@ const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
                 <MdOutlineArrowDropDown />
               }
             </ActionIcon>
-            <ActionIcon>
+            <ActionIcon onClick={(e) => addToCart(e, flights)}>
               <BsFillCartPlusFill />
             </ActionIcon>
           </Group>
@@ -73,7 +82,7 @@ const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
       </Grid>
       <Collapse in={openFlightDetails}>
         <Divider my="sm" />
-        <FlightDetails flights={flights} timeConversion={timeConversion} />
+        <FlightDetails flights={flights} timeConversion={timeConversion} addToCart={addToCart} />
       </Collapse>
     </Card>
   )
