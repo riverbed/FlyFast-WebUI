@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 
+import EmptyCart from './EmptyCart';
 import FlightDetails from '../TripCard/FlightDetails';
 
 const Cart = () => {
@@ -14,12 +15,15 @@ const Cart = () => {
   return (
     <>
       {storedFlights.length === 0 ?
-        "Nothing in the cart currently"
+        <EmptyCart />
         :
-        <FlightDetails
-          flights={storedFlights}
-          addCart={false}
-        />
+        <>
+          <FlightDetails
+            flights={storedFlights}
+            addCart={false}
+          />
+          {/* Head To Checkout Page */}
+        </>
       }
     </>
   );
