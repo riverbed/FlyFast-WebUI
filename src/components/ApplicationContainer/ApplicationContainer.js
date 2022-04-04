@@ -1,9 +1,13 @@
 import { AppShell, ColorSchemeProvider, MantineProvider } from '@mantine/core';
-import { useHotkeys, useLocalStorageValue } from '@mantine/hooks';
+import { useHotkeys, useLocalStorage } from '@mantine/hooks';
 import ApplicationHeader from './ApplicationHeader';
 
 const ApplicationContainer = (props) => {
-  const [theme, setTheme] = useLocalStorageValue({ key: 'mantine-theme', defaultValue: 'light' });
+  const [theme, setTheme] = useLocalStorage({
+    key: 'mantine-theme',
+    defaultValue: 'light',
+    getInitialValueInEffect: true
+  });
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
@@ -15,7 +19,6 @@ const ApplicationContainer = (props) => {
     <ColorSchemeProvider colorScheme={theme} toggleColorScheme={toggleTheme}>
       <MantineProvider theme={{ colorScheme: theme }} withNormalizeCSS withGlobalStyles>
         <AppShell
-          fixed
           header={<ApplicationHeader toggleTheme={toggleTheme} theme={theme} />}
         >
           {props.children}

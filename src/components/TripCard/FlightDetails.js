@@ -1,4 +1,4 @@
-import { Grid, Group, Text, ActionIcon, Divider } from '@mantine/core';
+import { Grid, Group, Stack, Text, ActionIcon, Divider } from '@mantine/core';
 import { BsFillCartPlusFill, BsFillCartDashFill } from 'react-icons/bs';
 
 import { timeConversion, addToCart, subtractFromCart } from '../../services/Functions';
@@ -17,24 +17,24 @@ const FlightDetails = ({ flights, addCart }) => {
         <div key={index}>
           <Grid>
             <Grid.Col xs={12} sm={2}>
-              <Group position="center" spacing={0} direction="column">
+              <Stack align="center" spacing={0}>
                 <Text>
                   {flight.flightNumber}
                 </Text>
                 <Text>
                   {flight.airline}
                 </Text>
-              </Group>
+              </Stack>
             </Grid.Col>
             <Grid.Col xs={12} sm={6} md={7}>
-              <Group position="center" spacing={0} direction="column">
+              <Stack align="center" spacing={0}>
                 <Text>
                   {timeConversion(flight.departureTime, cardTimeOption)} - {timeConversion(flight.arrivalTime, cardTimeOption)}
                 </Text>
                 <Text>
                   {flight.from} - {flight.to}
                 </Text>
-              </Group>
+              </Stack>
             </Grid.Col>
             <Grid.Col xs={6} sm={2} md={1}>
               <Group position="center">
