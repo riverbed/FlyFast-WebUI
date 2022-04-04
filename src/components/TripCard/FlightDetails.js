@@ -1,8 +1,15 @@
 import { Grid, Group, Text, ActionIcon, Divider } from '@mantine/core';
 import { BsFillCartPlusFill } from 'react-icons/bs';
 
-const FlightDetails = ({ flights, timeConversion, addToCart }) => {
+import { timeConversion, addToCart, subtractFromCart } from '../../services/Functions';
+
+const FlightDetails = ({ flights, addCart }) => {
   const cardTimeOption = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+
+  function cartButton(e, flight){
+    e.preventDefault();
+    addCart ? addToCart(flight) : subtractFromCart(flight);
+  }
 
   return (
     <>
@@ -41,7 +48,7 @@ const FlightDetails = ({ flights, timeConversion, addToCart }) => {
                 <Text>
                   ${flight.fare}
                 </Text>
-                <ActionIcon onClick={(e) => addToCart(e, [flight])}>
+                <ActionIcon onClick={(e) => cartButton(e, [flight])}>
                   <BsFillCartPlusFill />
                 </ActionIcon>
               </Group>

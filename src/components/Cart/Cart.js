@@ -11,21 +11,6 @@ const Cart = () => {
     }
   })
 
-  function timeConversion(timeFormat, options){
-    const date = new Date(timeFormat);
-    const formattedTime = date.toLocaleDateString(undefined, options);
-    return formattedTime;
-  }
-
-  function addToCart(e, flights){
-    e.preventDefault();
-    let storedFlights = [];
-    if (localStorage.getItem('cart')){
-      storedFlights = JSON.parse(localStorage.getItem('cart'));
-    }
-    localStorage.setItem('cart', JSON.stringify([...storedFlights, ...flights]));
-  }
-
   return (
     <>
       {storedFlights.length === 0 ?
@@ -33,8 +18,7 @@ const Cart = () => {
       :
         <FlightDetails
           flights={storedFlights}
-          timeConversion={timeConversion}
-          addToCart={addToCart}
+          addCart={false}
         />
       }
     </>
