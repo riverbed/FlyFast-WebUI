@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Stepper } from "@mantine/core";
 
 import Results from './Results';
+import Cart from '../Cart/Cart';
 
 import { ImAirplane, ImHome, ImCart } from "react-icons/im";
 
@@ -23,7 +24,7 @@ const SearchResults = ({ fromData, toData, results }) => {
         </Stepper.Step>
       }
       <Stepper.Step label="Cart" description="Total Flights" icon={<ImCart />}>
-        {/* Implement Cart Functionality */}
+        <Cart />
       </Stepper.Step>
     </Stepper>
   );
