@@ -24,7 +24,7 @@ const Results = ({ fromData, toData, resultsData }) => {
     <>
       {resultsData.length === 0 ?
         <NoResults fromData={fromData} toData={toData} />
-      :
+        :
         <>
           {pageinate(resultsData).map((trip, index) => (
             <TripCard

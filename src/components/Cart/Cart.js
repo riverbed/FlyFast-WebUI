@@ -15,7 +15,7 @@ const Cart = () => {
     <>
       {storedFlights.length === 0 ?
         "Nothing in the cart currently"
-      :
+        :
         <FlightDetails
           flights={storedFlights}
           addCart={false}

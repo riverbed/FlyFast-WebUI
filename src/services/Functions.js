@@ -23,7 +23,11 @@ export const addToCart = (flight) => {
   localStorage.setItem('cart', JSON.stringify([...storedFlights, ...flight]));
 }
 
-export const subtractFromCart = (flight) => {
-  // Add Remove From Cart Functionality
-  
+export const subtractFromCart = (index) => {
+  let storedFlights = [];
+  if (localStorage.getItem('cart')){
+    storedFlights = JSON.parse(localStorage.getItem('cart'));
+    storedFlights.splice(index, 1);
+  }
+  localStorage.setItem('cart', JSON.stringify(storedFlights));
 }

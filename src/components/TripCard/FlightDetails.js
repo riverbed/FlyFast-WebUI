@@ -1,14 +1,14 @@
 import { Grid, Group, Text, ActionIcon, Divider } from '@mantine/core';
-import { BsFillCartPlusFill } from 'react-icons/bs';
+import { BsFillCartPlusFill, BsFillCartDashFill } from 'react-icons/bs';
 
 import { timeConversion, addToCart, subtractFromCart } from '../../services/Functions';
 
 const FlightDetails = ({ flights, addCart }) => {
   const cardTimeOption = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
 
-  function cartButton(e, flight){
+  function cartButton(e, index, flight){
     e.preventDefault();
-    addCart ? addToCart(flight) : subtractFromCart(flight);
+    addCart ? addToCart(flight) : subtractFromCart(index);
   }
 
   return (
@@ -48,8 +48,12 @@ const FlightDetails = ({ flights, addCart }) => {
                 <Text>
                   ${flight.fare}
                 </Text>
-                <ActionIcon onClick={(e) => cartButton(e, [flight])}>
-                  <BsFillCartPlusFill />
+                <ActionIcon onClick={(e) => cartButton(e, index, [flight])}>
+                  {addCart ?
+                    <BsFillCartPlusFill />
+                    :
+                    <BsFillCartDashFill />
+                  }
                 </ActionIcon>
               </Group>
             </Grid.Col>

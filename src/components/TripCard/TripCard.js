@@ -49,7 +49,7 @@ const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
                 <MdOutlineArrowDropDown />
               }
             </ActionIcon>
-            <ActionIcon onClick={(e) => addToCart(e, flights)}>
+            <ActionIcon onClick={() => addToCart(flights)}>
               <BsFillCartPlusFill />
             </ActionIcon>
           </Group>
