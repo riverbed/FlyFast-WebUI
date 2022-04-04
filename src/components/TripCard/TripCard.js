@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, Grid, Group, Text, Collapse, ActionIcon, Divider } from '@mantine/core';
+import { Card, Grid, Group, Stack, Text, Collapse, ActionIcon, Divider } from '@mantine/core';
 import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
 import { BsFillCartPlusFill } from 'react-icons/bs';
 
@@ -18,24 +18,24 @@ const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
     <Card radius="md" m="xs" withBorder>
       <Grid>
         <Grid.Col xs={12} sm={4}>
-          <Group position="center" spacing={0} direction="column">
+          <Stack align="center" spacing={0}>
             <Text>
               {timeConversion(departureTime, cardTimeOption)} - {timeConversion(arrivalTime, cardTimeOption)}
             </Text>
             <Text>
               {from} - {to}
             </Text>
-          </Group>
+          </Stack>
         </Grid.Col>
         <Grid.Col xs={12} sm={4}>
-          <Group position="center" spacing={0} direction="column">
+          <Stack align="center" spacing={0}>
             <Text>
               Total Time: {timeDifference(departureTime, arrivalTime)}
             </Text>
             <Text>
               Total Flights: {flights.length}
             </Text>
-          </Group>
+          </Stack>
         </Grid.Col>
         <Grid.Col xs={12} sm={4}>
           <Group position="right">
