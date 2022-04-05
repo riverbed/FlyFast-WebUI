@@ -1,6 +1,8 @@
 import { AppShell, ColorSchemeProvider, MantineProvider } from '@mantine/core';
 import { useHotkeys, useLocalStorage } from '@mantine/hooks';
+
 import ApplicationHeader from './ApplicationHeader';
+import { CartProvider } from '../../services/Context';
 
 const ApplicationContainer = (props) => {
   const [theme, setTheme] = useLocalStorage({
@@ -19,9 +21,16 @@ const ApplicationContainer = (props) => {
     <ColorSchemeProvider colorScheme={theme} toggleColorScheme={toggleTheme}>
       <MantineProvider theme={{ colorScheme: theme }} withNormalizeCSS withGlobalStyles>
         <AppShell
-          header={<ApplicationHeader toggleTheme={toggleTheme} theme={theme} />}
+          header={
+            <ApplicationHeader
+              toggleTheme={toggleTheme}
+              theme={theme}
+            />
+          }
         >
-          {props.children}
+          <CartProvider>
+            {props.children}
+          </CartProvider>
         </AppShell>
       </MantineProvider>
     </ColorSchemeProvider>

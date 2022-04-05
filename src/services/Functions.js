@@ -14,20 +14,3 @@ export const timeDifference = (departureTime, arrivalTime) => {
   totalTime += dateMinutes > 0 ? dateMinutes + " Minutes" : "";
   return totalTime;
 }
-
-export const addToCart = (flight) => {
-  let storedFlights = [];
-  if (localStorage.getItem('cart')){
-    storedFlights = JSON.parse(localStorage.getItem('cart'));
-  }
-  localStorage.setItem('cart', JSON.stringify([...storedFlights, ...flight]));
-}
-
-export const subtractFromCart = (index) => {
-  let storedFlights = [];
-  if (localStorage.getItem('cart')){
-    storedFlights = JSON.parse(localStorage.getItem('cart'));
-    storedFlights.splice(index, 1);
-  }
-  localStorage.setItem('cart', JSON.stringify(storedFlights));
-}

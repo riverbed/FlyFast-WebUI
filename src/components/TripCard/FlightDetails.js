@@ -1,14 +1,17 @@
+import { useContext } from 'react';
 import { Grid, Group, Stack, Text, ActionIcon, Divider } from '@mantine/core';
 import { BsFillCartPlusFill, BsFillCartDashFill } from 'react-icons/bs';
 
-import { timeConversion, addToCart, subtractFromCart } from '../../services/Functions';
+import { timeConversion } from '../../services/Functions';
+import { CartContext } from '../../services/Context';
 
 const FlightDetails = ({ flights, addCart }) => {
+  const { addToCart, removeFromCart } = useContext(CartContext);
   const cardTimeOption = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
 
   function cartButton(e, index, flight){
     e.preventDefault();
-    addCart ? addToCart(flight) : subtractFromCart(index);
+    addCart ? addToCart(flight) : removeFromCart(index);
   }
 
   return (

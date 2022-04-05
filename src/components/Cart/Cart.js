@@ -1,25 +1,21 @@
-import { useState, useEffect } from 'react';
+import { useContext } from 'react';
+import { CartContext } from '../../services/Context';
+
 
 import EmptyCart from './EmptyCart';
 import FlightDetails from '../TripCard/FlightDetails';
 
 const Cart = () => {
-  const [storedFlights, setStoredFlights] = useState([]);
-
-  useEffect(() => {
-    if (localStorage.getItem('cart')){
-      setStoredFlights(JSON.parse(localStorage.getItem('cart')));
-    }
-  })
+  const { cart } = useContext(CartContext);
 
   return (
     <>
-      {storedFlights.length === 0 ?
+      {cart.length === 0 ?
         <EmptyCart />
         :
         <>
           <FlightDetails
-            flights={storedFlights}
+            flights={cart}
             addCart={false}
           />
           {/* Head To Checkout Page */}

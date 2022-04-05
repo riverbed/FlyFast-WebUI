@@ -1,12 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Card, Grid, Group, Stack, Text, Collapse, ActionIcon, Divider } from '@mantine/core';
 import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
 import { BsFillCartPlusFill } from 'react-icons/bs';
 
 import FlightDetails from './FlightDetails';
-import { timeConversion, timeDifference, addToCart } from '../../services/Functions';
+import { CartContext } from '../../services/Context';
+import { timeConversion, timeDifference } from '../../services/Functions';
 
 const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
+  const { addToCart } = useContext(CartContext);
   const [openFlightDetails, setOpenFlightDetails] = useState(false);
   const cardTimeOption = { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
 
