@@ -7,10 +7,20 @@ export const CartProvider = ({ children }) => {
   const [cart, setCart] = useLocalStorage({
     key: 'cart',
     serialize: (value) => {
-      return JSON.stringify(value);
+      try {
+        return JSON.stringify(value);
+      } catch (error) {
+        console.error('Cart Serialize Error:\n' + error);
+        return '';
+      }
     },
     deserialize: (localStorageValue) => {
-      return JSON.parse(localStorageValue);
+      try {
+        return JSON.parse(localStorageValue);
+      } catch (error) {
+        console.error('Cart Deserialize Error:\n' + error);
+        return [];
+      }
     },
     defaultValue: [],
     getInitialValueInEffect: true
