@@ -2,11 +2,9 @@ import { Center } from '@mantine/core';
 
 const EmptyCart = () => {
   return (
-    <>
-      <Center>
-        No flights has been added to the cart. 
-      </Center>
-    </>
+    <Center>
+      No flights has been added to the cart. 
+    </Center>
   );
 }
 

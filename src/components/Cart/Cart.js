@@ -1,9 +1,8 @@
 import { useContext } from 'react';
 import { CartContext } from '../../services/Context';
 
-
 import EmptyCart from './EmptyCart';
-import FlightDetails from '../TripCard/FlightDetails';
+import FlightDetails from './FlightDetails';
 
 const Cart = () => {
   const { cart } = useContext(CartContext);
@@ -14,10 +13,7 @@ const Cart = () => {
         <EmptyCart />
         :
         <>
-          <FlightDetails
-            flights={cart}
-            addCart={false}
-          />
+          <FlightDetails flights={cart} />
           {/* Head To Checkout Page */}
         </>
       }
