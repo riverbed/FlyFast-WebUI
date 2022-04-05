@@ -88,7 +88,7 @@ const Search = ({ fromData, toData, seatData, tripDateData, useBackend }) => {
 
   return (
     <Paper
-      padding='lg'
+      p='lg'
       shadow='sm'
       withBorder
     >

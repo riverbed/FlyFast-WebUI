@@ -3,7 +3,7 @@ import { MdLightMode, MdDarkMode } from 'react-icons/md';
 
 const ApplicationHeader = ({ toggleTheme, theme }) => {
   return (
-    <Header padding="md">
+    <Header p="md">
       <Group position="apart">
         <Text>FlyFast</Text>
         <ActionIcon

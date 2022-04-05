@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react';
-import { Card, Grid, Group, Text, Collapse, ActionIcon, Divider } from '@mantine/core';
+import { useState, useEffect, useContext } from 'react';
+import { Card, Grid, Group, Stack, Text, Collapse, ActionIcon, Divider } from '@mantine/core';
 import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from 'react-icons/md';
 import { BsFillCartPlusFill } from 'react-icons/bs';
 
 import FlightDetails from './FlightDetails';
+import { CartContext } from '../../services/Context';
+import { timeConversion, timeDifference } from '../../services/Functions';
 
 const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
+  const { addToCart } = useContext(CartContext);
   const [openFlightDetails, setOpenFlightDetails] = useState(false);
   const cardTimeOption = { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
 
@@ -13,54 +16,28 @@ const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
     setOpenFlightDetails(false);
   }, [from, to, flights, departureTime, arrivalTime, fare])
 
-  function timeConversion(timeFormat, options){
-    const date = new Date(timeFormat);
-    const formattedTime = date.toLocaleDateString(undefined, options);
-    return formattedTime;
-  }
-
-  function timeDifference(departureTime, arrivalTime){
-    const departureDate = new Date(departureTime);
-    const arrivalDate = new Date(arrivalTime);
-    const dateDifference = Math.abs(departureDate - arrivalDate);
-    const dateHours = Math.floor((dateDifference / (1000 * 60 * 60)) % 24);
-    const dateMinutes = Math.floor((dateDifference / (1000 * 60)) % 60);
-    let totalTime = dateHours > 0 ? dateHours + " Hours " : " ";
-    totalTime += dateMinutes > 0 ? dateMinutes + " Minutes" : "";
-    return totalTime;
-  }
-
-  function addToCart(e, flights){
-    e.preventDefault();
-    let storedFlights = [];
-    if (localStorage.getItem('cart')){
-      storedFlights = JSON.parse(localStorage.getItem('cart'));
-    }
-    localStorage.setItem('cart', JSON.stringify([...storedFlights, ...flights]));
-  }
-
   return (
     <Card radius="md" m="xs" withBorder>
       <Grid>
         <Grid.Col xs={12} sm={4}>
-          <Group position="center" spacing={0} direction="column">
+          <Stack align="center" spacing={0}>
             <Text>
               {timeConversion(departureTime, cardTimeOption)} - {timeConversion(arrivalTime, cardTimeOption)}
             </Text>
             <Text>
               {from} - {to}
             </Text>
-          </Group>
+          </Stack>
         </Grid.Col>
         <Grid.Col xs={12} sm={4}>
-          <Group position="center" spacing={0} direction="column">
+          <Stack align="center" spacing={0}>
             <Text>
               Total Time: {timeDifference(departureTime, arrivalTime)}
             </Text>
             <Text>
               Total Flights: {flights.length}
             </Text>
-          </Group>
+          </Stack>
         </Grid.Col>
         <Grid.Col xs={12} sm={4}>
           <Group position="right">
@@ -74,7 +51,7 @@ const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
                 <MdOutlineArrowDropDown />
               }
             </ActionIcon>
-            <ActionIcon onClick={(e) => addToCart(e, flights)}>
+            <ActionIcon onClick={() => addToCart(flights)}>
               <BsFillCartPlusFill />
             </ActionIcon>
           </Group>
@@ -82,7 +59,7 @@ const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
       </Grid>
       <Collapse in={openFlightDetails}>
         <Divider my="sm" />
-        <FlightDetails flights={flights} timeConversion={timeConversion} addToCart={addToCart} />
+        <FlightDetails flights={flights} />
       </Collapse>
     </Card>
   )
