@@ -6,7 +6,7 @@ const Checkout = () => {
   return (
     <Grid justify="center" align="center">
       <Grid.Col span={10}>
-        <Cart />
+        <Cart checkoutButton={false}/>
       </Grid.Col>
     </Grid>
   );
