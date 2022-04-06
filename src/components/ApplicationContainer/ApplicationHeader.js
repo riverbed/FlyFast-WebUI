@@ -1,22 +1,35 @@
-import { ActionIcon, Group, Header, Text } from '@mantine/core';
+import { Link } from 'react-router-dom';
+
+import { ActionIcon, Group, Header, UnstyledButton } from '@mantine/core';
 import { MdLightMode, MdDarkMode } from 'react-icons/md';
+import { BsFillCartFill } from 'react-icons/bs';
 
 const ApplicationHeader = ({ toggleTheme, theme }) => {
   return (
     <Header p="md">
       <Group position="apart">
-        <Text>FlyFast</Text>
-        <ActionIcon
-          variant="outline"
-          onClick={() => toggleTheme()}
-        >
-          {theme === 'light' &&
-            <MdDarkMode />
-          }
-          {theme === 'dark' &&
-            <MdLightMode />
-          }
-        </ActionIcon>
+        <UnstyledButton component={Link} to="/">
+          FlyFast
+        </UnstyledButton>
+        <Group>
+          <ActionIcon
+            variant="outline"
+            onClick={() => toggleTheme()}
+          >
+            {theme === 'dark' ?
+              <MdLightMode />
+              :
+              <MdDarkMode />
+            }
+          </ActionIcon>
+          <ActionIcon
+            variant="outline"
+            component={Link}
+            to="/checkout"
+          >
+            <BsFillCartFill />
+          </ActionIcon>
+        </Group>
       </Group>
     </Header>
   )

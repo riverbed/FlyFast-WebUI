@@ -16,8 +16,8 @@ const Checkout = lazy(() => import('./pages/Checkout/Checkout'));
 
 const App = () => {
   return (
-    <ApplicationContainer>
-      <Router>
+    <Router>
+      <ApplicationContainer>
         <Suspense fallback={<LoadingOverlay visible={true} />}>
           <Routes>
             <Route exact path="/" element={ <Home /> } />
@@ -26,8 +26,8 @@ const App = () => {
             <Route path="/checkout" element={ <Checkout /> } />
           </Routes>
         </Suspense>
-      </Router>
-    </ApplicationContainer>
+      </ApplicationContainer>
+    </Router>
   );
 }
 
