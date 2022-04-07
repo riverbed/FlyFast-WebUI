@@ -1,12 +1,19 @@
-import { Grid } from "@mantine/core";
+import { Grid, Title } from "@mantine/core";
 
 import Cart from "../../components/Cart/Cart";
+import Cost from "../../components/Breakdown/Cost";
 
 const Checkout = () => {
   return (
-    <Grid justify="center" align="center">
-      <Grid.Col span={10}>
-        <Cart checkoutButton={false}/>
+    <Grid>
+      <Grid.Col xs={12} md={8}>
+        <Title order={3} my={8} p={16}>
+          My Cart
+        </Title>
+        <Cart />
+      </Grid.Col>
+      <Grid.Col xs={12} md={4}>
+        <Cost />
       </Grid.Col>
     </Grid>
   );
