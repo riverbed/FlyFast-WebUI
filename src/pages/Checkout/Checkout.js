@@ -3,6 +3,7 @@ import { Stepper, Grid, Title } from "@mantine/core";
 
 import Cart from "../../components/Cart/Cart";
 import Cost from "../../components/Breakdown/Cost";
+import Confirmation from "../../components/Breakdown/Confirmation";
 
 const Checkout = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -28,7 +29,7 @@ const Checkout = () => {
         </Grid>
       </Stepper.Step>
       <Stepper.Step label="Confirmation" description="Order Successfully Placed" allowStepSelect={activeStep > 1}>
-        
+        <Confirmation />
       </Stepper.Step>
     </Stepper>
   );
