@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Stepper } from "@mantine/core";
+import { Link } from 'react-router-dom';
+import { Stepper, Button, Center } from "@mantine/core";
+import { ImAirplane, ImHome, ImCart } from "react-icons/im";
+import { BsFillCartFill } from 'react-icons/bs';
 
 import Results from './Results';
 import Cart from '../Cart/Cart';
-
-import { ImAirplane, ImHome, ImCart } from "react-icons/im";
 
 const SearchResults = ({ fromData, toData, results }) => {
   const [activeStep, setActiveStep] = useState(0);
@@ -18,13 +19,24 @@ const SearchResults = ({ fromData, toData, results }) => {
       <Stepper.Step label="Destination Flights" description={fromData + " - " + toData} icon={<ImAirplane />}>
         <Results fromData={fromData} toData={toData} resultsData={results[0]} />
       </Stepper.Step>
-      { results.length === 2 && 
+      {results.length === 2 && 
         <Stepper.Step label="Return Flights" description={toData + " - " + fromData} icon={<ImHome />}>
           <Results fromData={toData} toData={fromData} resultsData={results[1]} />
         </Stepper.Step>
       }
       <Stepper.Step label="Cart" description="Total Flights" icon={<ImCart />}>
         <Cart />
+        <Center>
+          <Button
+            leftIcon={<BsFillCartFill />}
+            variant="gradient"
+            gradient={{ from: 'indigo', to: 'cyan' }}
+            component={Link}
+            to="/checkout"
+          >
+            Proceed To Checkout
+          </Button>
+        </Center>
       </Stepper.Step>
     </Stepper>
   );

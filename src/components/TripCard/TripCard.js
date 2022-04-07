@@ -59,7 +59,7 @@ const TripCard = ({ from, to, flights, departureTime, arrivalTime, fare }) => {
       </Grid>
       <Collapse in={openFlightDetails}>
         <Divider my="sm" />
-        <FlightDetails flights={flights} />
+        <FlightDetails flights={flights} cart={true} />
       </Collapse>
     </Card>
   )

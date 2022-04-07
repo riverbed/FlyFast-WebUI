@@ -5,7 +5,7 @@ import { BsFillCartPlusFill, BsFillCartDashFill } from 'react-icons/bs';
 import { timeConversion } from '../../services/Functions';
 import { CartContext } from '../../services/Context';
 
-const Flight = ({ index, flight, addCart }) => {
+const Flight = ({ index, flight, cart, addCart }) => {
   const { addToCart, removeFromCart } = useContext(CartContext);
   const cardTimeOption = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
 
@@ -48,13 +48,15 @@ const Flight = ({ index, flight, addCart }) => {
           <Text>
             ${flight.fare}
           </Text>
-          <ActionIcon onClick={(e) => cartButton(e, index, [flight])}>
-            {addCart ?
-              <BsFillCartPlusFill />
-              :
-              <BsFillCartDashFill />
-            }
-          </ActionIcon>
+          {cart &&
+            <ActionIcon onClick={(e) => cartButton(e, index, [flight])}>
+              {addCart ?
+                <BsFillCartPlusFill />
+                :
+                <BsFillCartDashFill />
+              }
+            </ActionIcon>
+          }
         </Group>
       </Grid.Col>
     </Grid>

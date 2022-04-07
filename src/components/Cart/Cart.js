@@ -1,4 +1,5 @@
 import { useContext } from 'react';
+
 import { CartContext } from '../../services/Context';
 
 import EmptyCart from './EmptyCart';
@@ -12,10 +13,7 @@ const Cart = () => {
       {cart.length === 0 ?
         <EmptyCart />
         :
-        <>
-          <FlightDetails flights={cart} />
-          {/* Head To Checkout Page */}
-        </>
+        <FlightDetails flights={cart} cart={true} />
       }
     </>
   );
