@@ -45,7 +45,7 @@ const Cost = ({ proceedButton }) => {
             Total:
           </Text>
           <Text weight="bold" size="lg">
-            ${(Math.round(SUBTOTAL * TAX * 100) / 100 + SUBTOTAL)}
+            ${Math.round((SUBTOTAL * TAX + SUBTOTAL) * 100) / 100}
           </Text>
         </Group>
         <Button
