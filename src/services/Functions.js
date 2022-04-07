@@ -14,3 +14,21 @@ export const timeDifference = (departureTime, arrivalTime) => {
   totalTime += dateMinutes > 0 ? dateMinutes + " Minutes" : "";
   return totalTime;
 }
+
+export const jsonSerialize = (value) => {
+  try {
+    return JSON.stringify(value);
+  } catch (error) {
+    console.error('JSON Serialize Error:\n' + error);
+    return '';
+  }
+}
+
+export const jsonDeserialize = (value) => {
+  try {
+    return JSON.parse(value);
+  } catch (error) {
+    console.error('JSON Deserialize Error:\n' + error);
+    return [];
+  }
+}

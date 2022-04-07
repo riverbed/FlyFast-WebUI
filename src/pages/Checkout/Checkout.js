@@ -1,21 +1,25 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { Stepper, Grid, Title } from "@mantine/core";
 
 import Cart from "../../components/Cart/Cart";
 import Cost from "../../components/Breakdown/Cost";
 import Confirmation from "../../components/Breakdown/Confirmation";
 
+import { CartContext } from '../../services/Context';
+
 const Checkout = () => {
   const [activeStep, setActiveStep] = useState(0);
+  const { purchaseCart } = useContext(CartContext);
 
   const nextStep = (e) => {
     e.preventDefault();
+    purchaseCart();
     setActiveStep((current) => (current + 1));
   }
 
   return (
     <Stepper active={activeStep} onStepClick={setActiveStep} breakpoint="xs">
-      <Stepper.Step label="Checkout" description="Confirm Items In Cart" allowStepSelect={activeStep > 0}>
+      <Stepper.Step label="Checkout" description="Confirm Items In Cart" allowStepSelect={false}>
         <Grid>
           <Grid.Col xs={12} md={8}>
             <Title order={3} my={8} p={16}>
@@ -28,7 +32,7 @@ const Checkout = () => {
           </Grid.Col>
         </Grid>
       </Stepper.Step>
-      <Stepper.Step label="Confirmation" description="Order Successfully Placed" allowStepSelect={activeStep > 1}>
+      <Stepper.Step label="Confirmation" description="Order Successfully Placed" allowStepSelect={false}>
         <Confirmation />
       </Stepper.Step>
     </Stepper>

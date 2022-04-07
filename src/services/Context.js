@@ -1,27 +1,23 @@
 import { createContext } from "react";
 import { useLocalStorage } from '@mantine/hooks';
 
+import { jsonSerialize, jsonDeserialize } from "./Functions";
+
 export const CartContext = createContext(null);
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useLocalStorage({
     key: 'cart',
-    serialize: (value) => {
-      try {
-        return JSON.stringify(value);
-      } catch (error) {
-        console.error('Cart Serialize Error:\n' + error);
-        return '';
-      }
-    },
-    deserialize: (localStorageValue) => {
-      try {
-        return JSON.parse(localStorageValue);
-      } catch (error) {
-        console.error('Cart Deserialize Error:\n' + error);
-        return [];
-      }
-    },
+    serialize: jsonSerialize,
+    deserialize: jsonDeserialize,
+    defaultValue: [],
+    getInitialValueInEffect: true
+  });
+
+  const [pastCart, setPastCart] = useLocalStorage({
+    key: 'pastCart',
+    serialize: jsonSerialize,
+    deserialize: jsonDeserialize,
     defaultValue: [],
     getInitialValueInEffect: true
   });
@@ -36,5 +32,10 @@ export const CartProvider = ({ children }) => {
     return setCart(newCart);
   }
 
-  return <CartContext.Provider value={{ cart, addToCart, removeFromCart }}>{children}</CartContext.Provider>
+  const purchaseCart = () => {
+    setPastCart(cart);
+    setCart([]);
+  }
+
+  return <CartContext.Provider value={{ cart, pastCart, addToCart, removeFromCart, purchaseCart }}>{children}</CartContext.Provider>
 }

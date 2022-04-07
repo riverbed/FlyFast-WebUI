@@ -5,7 +5,7 @@ import { CartContext } from '../../services/Context';
 import FlightDetails from '../Cart/FlightDetails';
 
 const Confirmation = () => {
-  const { cart } = useContext(CartContext);
+  const { pastCart } = useContext(CartContext);
 
   return (
     <Grid justify="center" align="center">
@@ -21,7 +21,7 @@ const Confirmation = () => {
             Please allow a few minutes for your email to arrive.
           </Text>
         </Stack>
-        <FlightDetails flights={cart} cart={false} />
+        <FlightDetails flights={pastCart} cart={false} />
       </Grid.Col>
     </Grid>
   );
