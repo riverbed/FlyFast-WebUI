@@ -3,7 +3,7 @@ import { Button, Card, Stack, Group, Title, Text, Divider } from '@mantine/core'
 
 import { CartContext } from '../../services/Context';
 
-const Cost = () => {
+const Cost = ({ proceedButton }) => {
   const { cart } = useContext(CartContext);
   const SUBTOTAL = cart.reduce((total, flight) => total + flight.fare, 0);
   const TAX = 0.0875;
@@ -52,6 +52,7 @@ const Cost = () => {
           variant="gradient"
           gradient={{ from: 'indigo', to: 'cyan' }}
           disabled={cart.length === 0}
+          onClick={proceedButton}
         >
           Proceed
         </Button>
