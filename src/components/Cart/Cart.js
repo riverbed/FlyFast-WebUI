@@ -13,7 +13,7 @@ const Cart = () => {
       {cart.length === 0 ?
         <EmptyCart />
         :
-        <FlightDetails flights={cart} />
+        <FlightDetails flights={cart} cart={true} />
       }
     </>
   );
