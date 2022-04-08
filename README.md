@@ -9,26 +9,40 @@ To view the full source code and to run the whole application through Docker, he
 ## Prerequisites
 
 1. [Git](https://git-scm.com/) (Optional)
-2. [NodeJS](https://nodejs.org/en/) (Required)
-3. [FlightSearch](https://github.com/Aternity/FlyFast-FlightSearch) (Required Only For Making Backend Calls)
+2. a Docker host, for example [Docker Desktop](https://www.docker.com/products/docker-desktop) (Optional)
+3. [NodeJS](https://nodejs.org/en/) (Required)
+4. [FlightSearch](https://github.com/Aternity/FlyFast-FlightSearch) (Required Only For Making Backend Calls)
 
-## Step by Step
+## Getting Started
 1. Clone/download this repository.
-```
-git clone https://github.com/Aternity/FlyFast-WebUI.git
-```
+    ```
+    git clone https://github.com/Aternity/FlyFast-WebUI.git
+    ```
 2. Using the terminal, change the directory to the folder of this project.
-```
-cd FlyFast-WebUI
-```
-3. Install the dependencies required to run this application:
-```
-npm install
-```
-4. Make sure to set the environment variables for the application. Take a look at [.env.example](.env.example) and follow the instructions on there.
+    ```
+    cd FlyFast-WebUI
+    ```
+
+## Step by Step Using NodeJS
+1. Install the dependencies required to run this application:
+    ```
+    npm install
+    ```
+2. Make sure to set the environment variables for the application. Take a look at [.env.example](.env.example) and follow the instructions on there.
     - `REACT_APP_FLIGHT_SEARCH` is the Flight Search URL, which should be on port `8080`, if you are using the [FlightSearch](https://github.com/Aternity/FlyFast-FlightSearch).
     - `REACT_APP_OPENTELEMETRY_ENDPOINT` is the APM Collector URL, which should be on port `55681`, if you are using the [Aternity APM Collector](https://hub.docker.com/r/aternity/apm-collector)
-5. Select one of the following scripts below that best suits your purpose.
+3. Select one of the following [scripts](#available-scripts) that best suits your purpose.
+
+## Step by Step Using Docker
+1. Build our docker:
+    ```
+    docker build . -t WebUI
+    ```
+2. Run our docker container:
+    ```
+    docker run --rm -p 80:80 WebUI
+    ```
+3. Open [http://localhost:80](http://localhost:80) to view it in your browser.
 
 ## Available Scripts
 
