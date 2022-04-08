@@ -38,7 +38,6 @@ const SearchFlight = () => {
           toData={searchParams.get('to')}
           seatData={searchParams.get('seat')}
           tripDateData={[searchParams.get('departure'), searchParams.get('return')]}
-          useBackend={false}
         />
       </Grid.Col>
       <Grid.Col span={10}>

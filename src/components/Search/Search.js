@@ -13,8 +13,9 @@ import { airportFilter, airportInformation, airportBackendFilter } from './Airpo
 
 import { airportTypeAhead } from '../../services/Flight';
 
-const Search = ({ fromData, toData, seatData, tripDateData, useBackend }) => {
+const Search = ({ fromData, toData, seatData, tripDateData }) => {
   const [loading, setLoading] = useState(false);
+  const [useBackend, setUseBackend] = useState(false);
   const [airportData, setAirportData] = useState([]);
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
@@ -108,6 +109,18 @@ const Search = ({ fromData, toData, seatData, tripDateData, useBackend }) => {
             value={seat}
             onChange={(e) => setSeat(e.currentTarget.value)}
           />
+
+          <Button
+            variant="outline"
+            onClick={() => setUseBackend(!useBackend)}
+            compact
+          >
+            {useBackend ?
+              "Switch To WebUI Typeahead"
+              :
+              "Switch To FlightSearch Typeahead"
+            }
+          </Button>
         </Group>
         <Grid my="sm" justify="center" align="center">
           <Grid.Col md={8} sm={12}>
