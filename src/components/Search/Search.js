@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Autocomplete, Group, Button, Paper, NativeSelect, Grid } from '@mantine/core';
 import { DateRangePicker, DatePicker } from '@mantine/dates';
-import { FaPlaneArrival, FaPlaneDeparture, FaSearch } from "react-icons/fa";
-import { BsCalendarWeek } from "react-icons/bs";
-import { MdAirplanemodeActive, MdOutlineAirlineSeatReclineNormal } from "react-icons/md";
+import { BsCalendarWeek, BsSearch } from "react-icons/bs";
+import { MdAirplanemodeActive, MdOutlineAirlineSeatReclineNormal, MdFlightLand, MdFlightTakeoff } from "react-icons/md";
 
 import airports from './AirportsData.json';
 import seatTypes from './SeatData.json';
@@ -115,7 +114,7 @@ const Search = ({ fromData, toData, seatData, tripDateData, useBackend }) => {
             <Group grow>
               <Autocomplete
                 required
-                icon={<FaPlaneDeparture />}
+                icon={<MdFlightTakeoff />}
                 placeholder="From?"
                 itemComponent={airportInformation}
                 data={useBackend ? airportData : airports}
@@ -126,7 +125,7 @@ const Search = ({ fromData, toData, seatData, tripDateData, useBackend }) => {
 
               <Autocomplete
                 required
-                icon={<FaPlaneArrival />}
+                icon={<MdFlightLand />}
                 placeholder="To?"
                 itemComponent={airportInformation}
                 data={useBackend ? airportData : airports}
@@ -165,7 +164,7 @@ const Search = ({ fromData, toData, seatData, tripDateData, useBackend }) => {
         </Grid>
         <Group my="sm" position="center">
           <Button
-            leftIcon={<FaSearch />}
+            leftIcon={<BsSearch />}
             variant="gradient"
             gradient={{ from: 'indigo', to: 'cyan' }}
             type="submit"
