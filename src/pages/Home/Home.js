@@ -6,9 +6,7 @@ const Home = () => {
   return (
     <Grid justify="center" align="center">
       <Grid.Col span={10}>
-        <Search 
-          useBackend={false}
-        />
+        <Search />
       </Grid.Col>
     </Grid>
   );
