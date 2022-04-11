@@ -22,6 +22,7 @@ To view the full source code and to run the whole application through Docker, he
     ```
     cd FlyFast-WebUI
     ```
+3. You can either start the application using [NodeJS](#step-by-step-using-nodejs) or [Docker](#step-by-step-using-docker).
 
 ## Step by Step Using NodeJS
 1. Install the dependencies required to run this application:
