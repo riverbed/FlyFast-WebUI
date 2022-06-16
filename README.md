@@ -37,11 +37,11 @@ To view the full source code and to run the whole application through Docker, he
 ## Step by Step Using Docker
 1. Build our docker:
     ```
-    docker build . -t WebUI
+    docker build . -t flyfast-webui
     ```
 2. Run our docker container:
     ```
-    docker run --rm -p 80:80 WebUI
+    docker run --rm -p 80:80 flyfast-webui
     ```
 3. Open [http://localhost:80](http://localhost:80) to view it in your browser.
 
