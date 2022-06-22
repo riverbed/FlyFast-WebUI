@@ -16,8 +16,10 @@ FROM nginx:1.19.6
 COPY default.conf.template /etc/nginx/conf.d/default.conf.template
 COPY --from=react-build /app/build /usr/share/nginx/html
 
-ENV REACT_APP_FLIGHT_SEARCH http://Search:8080
-ENV REACT_APP_OPENTELEMETRY_ENDPOINT http://apm-collector:55681
+ENV REACT_APP_FLIGHT_SEARCH $REACT_APP_FLIGHT_SEARCH
+# http://flyfast-flightsearch:8080
+ENV REACT_APP_OPENTELEMETRY_ENDPOINT $REACT_APP_OPENTELEMETRY_ENDPOINT
+# http://apm-collector:55681
 
 EXPOSE 80
 

@@ -41,7 +41,7 @@ To view the full source code and to run the whole application through Docker, he
     ```
 2. Run our docker container:
     ```
-    docker run --rm -p 80:80 flyfast-webui
+    docker run --rm -p 80:80 -e REACT_APP_FLIGHT_SEARCH=http://localhost:8080 -e REACT_APP_OPENTELEMETRY_ENDPOINT=http://localhost:55681 flyfast-webui
     ```
 3. Open [http://localhost:80](http://localhost:80) to view it in your browser.
 
