@@ -2,13 +2,13 @@ import { forwardRef } from 'react';
 import { Group, Text } from '@mantine/core';
 
 export const airportInformation = forwardRef(
-  ({ name, city, region, country, value, ...others }, ref) => (
+  ({ name, city, country, value, ...others }, ref) => (
     <div ref={ref} {...others}>
       <Group noWrap>
         <div>
           <Text>{name} ({value})</Text>
           <Text size="sm" color="dimmed">
-            {city}, {region ? region + "," : "" } {country}
+            {city}, {country}
           </Text>
         </div>
       </Group>
