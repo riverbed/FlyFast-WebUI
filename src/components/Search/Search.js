@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Autocomplete, Group, Button, Paper, NativeSelect, Grid } from '@mantine/core';
-import { DateRangePicker, DatePicker } from '@mantine/dates';
+import { DatePickerInput , DatePicker } from '@mantine/dates';
 import { BsCalendarWeek, BsSearch } from "react-icons/bs";
 import { MdAirplanemodeActive, MdOutlineAirlineSeatReclineNormal, MdFlightLand, MdFlightTakeoff } from "react-icons/md";
 
@@ -150,8 +150,9 @@ const Search = ({ fromData, toData, seatData, tripDateData }) => {
           </Grid.Col>
           <Grid.Col md={4} sm={12}>
             { trip === "Round Trip" &&
-              <DateRangePicker
+              <DatePickerInput
                 required
+                type="range"
                 clearable={false}
                 icon={<BsCalendarWeek />}
                 placeholder="Pick Trip Range"
@@ -162,7 +163,7 @@ const Search = ({ fromData, toData, seatData, tripDateData }) => {
               />
             }
             { trip === "One Way" &&
-              <DatePicker
+              <DatePickerInput
                 required
                 clearable={false}
                 icon={<BsCalendarWeek />}
