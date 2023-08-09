@@ -8,6 +8,7 @@ updates:
   # Enable version updates for npm
   - package-ecosystem: "npm" # See documentation for possible values
     directory: "/" # Location of package manifests
+    open-pull-requests-limit: 0 # Disable version updates for npm dependencies, default 5
     schedule:
       interval: "weekly"
   
