@@ -7,7 +7,7 @@ import Username from '../../components/Authentication/Username';
 
 const ApplicationHeader = ({ toggleTheme, theme }) => {
   return (
-    <Header p="md">
+    <Header height={{ base: 50, md: 70 }} p="md">
       <Group position="apart">
         <UnstyledButton component={Link} to="/">
           FlyFast
