@@ -7,13 +7,16 @@ COPY . .
 
 ## Dependencies
 
-# method 1 : install deps from package.json (not immutable)
+# method 1: install deps from package.json (not immutable)
 # RUN npm install
 
-# method 2 : clean-install will install dependencies from the package-lock.json (immutable)
+# method 1 with legacy
+# RUN npm install --legacy-peer-deps
+
+# method 2: clean-install will install dependencies from the package-lock.json (immutable)
 # RUN npm clean-install 
 
-# method 3
+# method 2 with legacy
 RUN npm clean-install --legacy-peer-deps
 
 ## Build
