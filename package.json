@@ -28,7 +28,6 @@
     "react-dom": "^18.2.0",
     "react-icons": "^4.10.1",
     "react-router-dom": "^6.14.2",
-    "react-scripts": "^5.0.1",
     "svgo": "^3.0.2",
     "typescript": "^5.1.6",
     "web-vitals": "^3.4.0"
@@ -56,5 +55,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/core": "^7.22.10",
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "react-scripts": "^5.0.1"
   }
 }
