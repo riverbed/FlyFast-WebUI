@@ -27,7 +27,7 @@ To view the full source code and to run the whole application through Docker, he
 ## Step by Step Using NodeJS
 1. Install the dependencies required to run this application:
     ```
-    npm install
+    npm install --legacy-peer-deps
     ```
 2. Make sure to set the environment variables for the application. Take a look at [.env.example](.env.example) and follow the instructions on there.
     - `REACT_APP_FLIGHT_SEARCH` is the Flight Search URL, which should be on port `8080`, if you are using the [FlightSearch](https://github.com/Aternity/FlyFast-FlightSearch).
