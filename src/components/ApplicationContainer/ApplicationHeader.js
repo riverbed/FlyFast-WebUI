@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
-
 import { ActionIcon, Group, Header, UnstyledButton } from '@mantine/core';
 import { MdLightMode, MdDarkMode } from 'react-icons/md';
 import { BsFillCartFill } from 'react-icons/bs';
+
+import Username from '../../components/Authentication/Username';
 
 const ApplicationHeader = ({ toggleTheme, theme }) => {
   return (
@@ -12,6 +13,7 @@ const ApplicationHeader = ({ toggleTheme, theme }) => {
           FlyFast
         </UnstyledButton>
         <Group>
+          <Username />
           <ActionIcon
             variant="outline"
             onClick={() => toggleTheme()}

@@ -76,20 +76,3 @@ const Tracing = () => {
 }
 
 export default Tracing;
-
-// TODO: cleanup after testing
-console.log("Testing injection for ALLUVIO UJI");
-
-// Aternity APM
-window.OPARX = { 
-  tracingid : "tracing.id:000000",
-  pageid :"page.id:0000" ,
-  ensureAixId() { return this.tracingid },
-  ensurePID() { return this.pageid } 
-};
-
-// Aternity EUEM device name
-window.aternity_euem_devicename = "ws-21893ew10" ;
-
-// Aternity EUEM username
-window.aternity_euem_username = "cindy.johnson" ;
