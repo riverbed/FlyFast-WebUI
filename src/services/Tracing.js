@@ -1,14 +1,20 @@
+import { context, trace, propagation } from '@opentelemetry/api';
 import { Resource } from '@opentelemetry/resources';
 import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
-import { CollectorTraceExporter } from '@opentelemetry/exporter-collector';
+import { OTLPTraceExporter  } from '@opentelemetry/exporter-trace-otlp-http';
 import { ConsoleSpanExporter, SimpleSpanProcessor, BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
+
 import { ZoneContextManager } from '@opentelemetry/context-zone';
-import { B3Propagator } from '@opentelemetry/propagator-b3';
 import { registerInstrumentations } from '@opentelemetry/instrumentation';
 import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-document-load';
 import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch';
 import { XMLHttpRequestInstrumentation } from '@opentelemetry/instrumentation-xml-http-request';
+import { UserInteractionInstrumentation } from '@opentelemetry/instrumentation-user-interaction';
+
 import { BaseOpenTelemetryComponent } from '@opentelemetry/plugin-react-load';
+
+// TODO: cleanup B3
+// import { B3Propagator } from '@opentelemetry/propagator-b3';
 
 const Tracing = () => {
   const traceEndpoint = '/tracingapi/v1/traces';
@@ -16,8 +22,9 @@ const Tracing = () => {
   
   // Service name used to identify the instance
   const resource = new Resource({ 'service.name': serviceName });
+
   // The Collector in which we will be sending the data to
-  const collector = new CollectorTraceExporter({ url: traceEndpoint });
+  const collector = new OTLPTraceExporter ({ url: traceEndpoint });
   
   const provider = new WebTracerProvider({ resource });
  
@@ -33,28 +40,31 @@ const Tracing = () => {
   }
   
   // Changing default contextManager to use ZoneContextManager - supports asynchronous operations - optional
+  // Use default W3C propagator (traceparent header) instead of B3 (b3 header)
   provider.register({ 
     contextManager: new ZoneContextManager(),
-    propagator: new B3Propagator()
+// TODO: cleanup B3
+//    propagator: new B3Propagator()
   });
   
+  // Passes trace headers to backend calls, gluing our frontend calls to the backend.
+  const propagateTraceHeaderCorsUrls = [/.+/g,];
+
+  // TODO: When UJI can ingest propagator field in the header (CORS + ingest), remove this temporary patch to workaround "Request header field b3 is not allowed by Access-Control-Allow-Headers in preflight response.)
+  // Do not propagate the b3 field in the request head when sending ALLUVIO UJI beacon
+  const ignoreUrls = [/d\.btttag\.com/];
+
   // Web Instrumentations can be found here: https://github.com/open-telemetry/opentelemetry-js-contrib#web-instrumentations
   registerInstrumentations({
     tracerProvider: provider,
     instrumentations: [
       new DocumentLoadInstrumentation(),
-      new FetchInstrumentation({
-        // Passes trace headers to backend calls, gluing our frontend calls to the backend.
-        propagateTraceHeaderCorsUrls: [
-          /.+/g,
-        ]
-      }),
+      new FetchInstrumentation({ propagateTraceHeaderCorsUrls }),
       new XMLHttpRequestInstrumentation({
-        // Passes trace headers to backend calls, gluing our frontend calls to the backend.
-        propagateTraceHeaderCorsUrls: [
-          /.+/g,
-        ]
+        propagateTraceHeaderCorsUrls,
+        ignoreUrls
       }),
+      new UserInteractionInstrumentation(),
     ],
   });
   
