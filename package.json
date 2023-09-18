@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "@emotion/react": "^11.11.1",
-    "@mantine/core": "^6.0.18",
+    "@mantine/core": "^6.0.21",
     "@mantine/dates": "^6.0.18",
     "@mantine/hooks": "^6.0.18",
     "@mantine/modals": "^6.0.18",
