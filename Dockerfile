@@ -27,7 +27,7 @@ RUN npm run build
 
 # Stage 2, Setting Up Production Environment
 
-FROM nginx:1.25.1
+FROM nginx:1.25.4
 
 COPY default.conf.template /etc/nginx/conf.d/default.conf.template
 COPY --from=react-build /app/build /usr/share/nginx/html
