@@ -10,7 +10,7 @@
     "@mantine/modals": "^6.0.18",
     "@opentelemetry/api": "^1.4.1",
     "@opentelemetry/context-zone": "^1.15.2",
-    "@opentelemetry/core": "1.15.2",
+    "@opentelemetry/core": "1.22.0",
     "@opentelemetry/exporter-trace-otlp-http": "^0.41.2",
     "@opentelemetry/instrumentation": "^0.41.2",
     "@opentelemetry/instrumentation-document-load": "^0.33.0",
