@@ -1,6 +1,6 @@
 # Stage 1, Building React Application
 
-FROM node:20.5.0-slim as react-build
+FROM node:21.7.2-slim as react-build
 
 WORKDIR /app
 COPY . .
