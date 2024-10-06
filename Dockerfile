@@ -1,6 +1,9 @@
+# Dockerfile
+# 24.10.4
+
 # Stage 1, Building React Application
 
-FROM node:20.5.0-slim as react-build
+FROM node:lts-slim as react-build
 
 WORKDIR /app
 COPY . .
@@ -14,10 +17,10 @@ COPY . .
 # RUN npm install --legacy-peer-deps
 
 # method 2: clean-install will install dependencies from the package-lock.json (immutable)
-# RUN npm clean-install 
+RUN npm clean-install 
 
 # method 2 with legacy
-RUN npm clean-install --legacy-peer-deps
+# RUN npm clean-install --legacy-peer-deps
 
 ## Build
 
@@ -27,7 +30,7 @@ RUN npm run build
 
 # Stage 2, Setting Up Production Environment
 
-FROM nginx:1.25.1
+FROM nginx:1.27
 
 COPY default.conf.template /etc/nginx/conf.d/default.conf.template
 COPY --from=react-build /app/build /usr/share/nginx/html
