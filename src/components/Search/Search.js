@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Autocomplete, Group, Button, Paper, NativeSelect, Grid } from '@mantine/core';
-import { DatePickerInput , DatePicker } from '@mantine/dates';
+import { DatePickerInput } from '@mantine/dates';
 import { BsCalendarWeek, BsSearch } from "react-icons/bs";
 import { MdAirplanemodeActive, MdOutlineAirlineSeatReclineNormal, MdFlightLand, MdFlightTakeoff } from "react-icons/md";
 

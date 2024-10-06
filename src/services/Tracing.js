@@ -1,4 +1,3 @@
-import { context, trace, propagation } from '@opentelemetry/api';
 import { Resource } from '@opentelemetry/resources';
 import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
 import { OTLPTraceExporter  } from '@opentelemetry/exporter-trace-otlp-http';
@@ -10,8 +9,6 @@ import { DocumentLoadInstrumentation } from '@opentelemetry/instrumentation-docu
 import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch';
 import { XMLHttpRequestInstrumentation } from '@opentelemetry/instrumentation-xml-http-request';
 import { UserInteractionInstrumentation } from '@opentelemetry/instrumentation-user-interaction';
-
-import { BaseOpenTelemetryComponent } from '@opentelemetry/plugin-react-load';
 
 // TODO: cleanup B3
 // import { B3Propagator } from '@opentelemetry/propagator-b3';
@@ -69,8 +66,6 @@ const Tracing = () => {
   });
   
   const tracer = provider.getTracer(serviceName);
-  BaseOpenTelemetryComponent.setTracer(serviceName);
-  BaseOpenTelemetryComponent.setLogger(provider.logger);
 
   return tracer;
 }
