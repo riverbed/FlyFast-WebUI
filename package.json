@@ -51,6 +51,6 @@
   },
   "devDependencies": {
     "react-scripts": "^5.0.1",
-    "typescript": "^4"
+    "typescript": "^5"
   }
 }
