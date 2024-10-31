@@ -1,9 +1,9 @@
 # Dockerfile
-# 24.10.4
+# 24.10.31
 
 # Stage 1, Building React Application
 
-FROM node:lts-slim as react-build
+FROM node:lts-slim AS react-build
 
 WORKDIR /app
 COPY . .
