@@ -15,7 +15,7 @@
     "@opentelemetry/instrumentation-user-interaction": "^0.41.0",
     "@opentelemetry/instrumentation-xml-http-request": "^0.54.0",
     "@opentelemetry/propagator-b3": "^1.27.0",
-    "@opentelemetry/resources": "^1.27.0",
+    "@opentelemetry/resources": "^1.28.0",
     "@opentelemetry/sdk-trace-base": "^1.27.0",
     "@opentelemetry/sdk-trace-web": "^1.27.0",
     "http-proxy-middleware": "^3.0.3",
