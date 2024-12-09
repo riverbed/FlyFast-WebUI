@@ -11,7 +11,7 @@
     "@opentelemetry/exporter-trace-otlp-http": "^0.54.0",
     "@opentelemetry/instrumentation": "^0.54.0",
     "@opentelemetry/instrumentation-document-load": "^0.41.0",
-    "@opentelemetry/instrumentation-fetch": "^0.54.0",
+    "@opentelemetry/instrumentation-fetch": "^0.56.0",
     "@opentelemetry/instrumentation-user-interaction": "^0.41.0",
     "@opentelemetry/instrumentation-xml-http-request": "^0.54.0",
     "@opentelemetry/propagator-b3": "^1.27.0",
