@@ -156,7 +156,7 @@ const Search = ({ fromData, toData, seatData, tripDateData }) => {
                 clearable={false}
                 icon={<BsCalendarWeek />}
                 placeholder="Pick Trip Range"
-                amountOfMonths={2}
+                amountofmonths={2}
                 firstDayOfWeek="sunday"
                 value={tripDate}
                 onChange={setTripDate}
@@ -168,7 +168,7 @@ const Search = ({ fromData, toData, seatData, tripDateData }) => {
                 clearable={false}
                 icon={<BsCalendarWeek />}
                 placeholder="Pick Trip Date"
-                amountOfMonths={1}
+                amountofmonths={1}
                 firstDayOfWeek="sunday"
                 value={tripDate[0]}
                 onChange={(input) => setTripDate([input, new Date(input.getTime() + (7 * 24 * 60 * 60 * 1000))])}

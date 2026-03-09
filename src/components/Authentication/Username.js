@@ -5,7 +5,7 @@ import {
   const Username = () => {
     const [searchParams] = useSearchParams();
     return (
-      <span id="shellUser-name" class="sapUiUfdShellHeadUsrItmName" title={searchParams.get('username')}>{searchParams.get('username')}</span>
+      <span id="shellUser-name" className="sapUiUfdShellHeadUsrItmName" title={searchParams.get('username')}>{searchParams.get('username')}</span>
     );
   }
   

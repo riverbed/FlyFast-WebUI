@@ -17,7 +17,7 @@ const collector = new CollectorTraceExporter({ url: traceEndpoint });
 const provider = new WebTracerProvider({ resource });
 
 
-if (process.env.NODE_ENV === 'production'){
+if (process.env.NODE_ENV === 'production') {
   // Typically, the BatchSpanProcessor will be more suitable for production environments than the SimpleSpanProcessor.
   // Use the BatchSpanProcessor to export spans in batches in order to more efficiently use resources.
   provider.addSpanProcessor(new BatchSpanProcessor(collector));
@@ -29,7 +29,7 @@ else {
 }
 
 // Changing default contextManager to use ZoneContextManager - supports asynchronous operations - optional
-provider.register({ 
+provider.register({
   contextManager: new ZoneContextManager(),
   propagator: new B3Propagator()
 });

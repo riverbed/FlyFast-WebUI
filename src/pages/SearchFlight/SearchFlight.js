@@ -8,23 +8,23 @@ import SearchResults from '../../components/SearchResults/SearchResults';
 import { searchFlight } from '../../services/Flight';
 
 const SearchFlight = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [overlayShow, setOverlayShow] = useState(false);
   const [result, setResult] = useState([[]]);
 
   useEffect(() => {
-    async function retrieveFlight(from, to, departureDate, returnDate, seat){
+    async function retrieveFlight(from, to, departureDate, returnDate, seat) {
       setOverlayShow(true);
       await searchFlight(from, to, departureDate, returnDate, seat)
-      .then( result => {
-        try {
-          setResult(JSON.parse(JSON.stringify(result)));
-        } catch (error) {
-          console.error(error);
-          setResult([[]]);
-        }
-      })
-      .catch( error => console.error(error) );
+        .then(result => {
+          try {
+            setResult(JSON.parse(JSON.stringify(result)));
+          } catch (error) {
+            console.error(error);
+            setResult([[]]);
+          }
+        })
+        .catch(error => console.error(error));
       setOverlayShow(false);
     }
     retrieveFlight(searchParams.get('from'), searchParams.get('to'), searchParams.get('departure'), searchParams.get('return'), searchParams.get('seat'));
