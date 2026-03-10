@@ -72,6 +72,46 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
+### `npm run type-check`
+
+Runs TypeScript validation without emitting build artifacts.
+
+### `npm run type-check:watch`
+
+Runs TypeScript validation continuously while files change.
+
+## TypeScript Configuration
+
+This project now includes a strict TypeScript baseline in `tsconfig.json`.
+
+- Strict mode is enabled to catch type errors earlier.
+- Path alias `@/*` maps to `src/*`.
+- Unit 1 includes a proof-of-concept conversion at `src/services/Functions.ts`.
+
+## Dependency Update Strategy
+
+Dependency upgrades in Unit 1 follow stable compatibility boundaries:
+
+- Keep React on 18.x during Unit 1 to avoid UI/runtime churn.
+- Keep Mantine on 6.x during Unit 1 (Mantine v7 migration is Unit 3).
+- Use `legacy-peer-deps` temporarily during staged upgrades.
+
+## Docker Build Notes
+
+The Dockerfile uses a multi-stage build with pinned Node/npm versions and NGINX runtime.
+
+Build image:
+
+```bash
+docker build -t flyfast-webui .
+```
+
+Run container:
+
+```bash
+docker run --rm -p 80:80 -e REACT_APP_FLIGHT_SEARCH=http://localhost:8080 -e REACT_APP_OPENTELEMETRY_ENDPOINT=http://localhost:55681 flyfast-webui
+```
+
 ### `npm run eject`
 
 **Note: this is a one-way operation. Once you `eject`, you can't go back!**

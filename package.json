@@ -3,33 +3,38 @@
   "version": "24.10.31.1500",
   "private": true,
   "dependencies": {
-    "@mantine/core": "^6.0.18",
-    "@mantine/dates": "^6.0.18",
-    "@mantine/hooks": "^6.0.18",
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@mantine/core": "^7.17.8",
+    "@mantine/dates": "^7.17.8",
+    "@mantine/hooks": "^7.17.8",
     "@opentelemetry/api": "^1.9.0",
-    "@opentelemetry/context-zone": "^1.27.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.54.0",
-    "@opentelemetry/instrumentation": "^0.54.0",
+    "@opentelemetry/context-zone": "^1.30.1",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.54.2",
+    "@opentelemetry/instrumentation": "^0.54.2",
     "@opentelemetry/instrumentation-document-load": "^0.41.0",
-    "@opentelemetry/instrumentation-fetch": "^0.54.0",
+    "@opentelemetry/instrumentation-fetch": "^0.54.2",
     "@opentelemetry/instrumentation-user-interaction": "^0.41.0",
-    "@opentelemetry/instrumentation-xml-http-request": "^0.54.0",
-    "@opentelemetry/propagator-b3": "^1.27.0",
-    "@opentelemetry/resources": "^1.27.0",
-    "@opentelemetry/sdk-trace-base": "^1.27.0",
-    "@opentelemetry/sdk-trace-web": "^1.27.0",
-    "http-proxy-middleware": "^3.0.3",
+    "@opentelemetry/instrumentation-xml-http-request": "^0.54.2",
+    "@opentelemetry/propagator-b3": "^1.30.1",
+    "@opentelemetry/resources": "^1.30.1",
+    "@opentelemetry/sdk-trace-base": "^1.30.1",
+    "@opentelemetry/sdk-trace-web": "^1.30.1",
+    "dayjs": "^1.11.13",
+    "http-proxy-middleware": "^3.0.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-icons": "^5.3.0",
-    "react-router-dom": "^6.27.0",
-    "web-vitals": "^4.2.4"
+    "react-icons": "^5.6.0",
+    "react-router-dom": "^6.30.3",
+    "web-vitals": "^5.1.0"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch"
   },
   "eslintConfig": {
     "extends": [
@@ -50,7 +55,27 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.4.0",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "react-scripts": "^5.0.1",
-    "typescript": "^4"
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "installConfig": {
+    "legacyPeerDeps": true
+  },
+  "_comments": {
+    "dependencyStrategy": "Unit 1 updates keep React and Mantine on compatible stable majors (React 18, Mantine 6) while moving to latest stable patch/minor versions. Major UI migrations occur in Unit 3.",
+    "legacyPeerDeps": "Enabled to avoid peer resolution blocks during incremental modernization. Re-evaluate after Mantine v7 migration in Unit 3.",
+    "typeCheckScripts": "Added for fast TypeScript validation in local development and CI without full build."
   }
 }

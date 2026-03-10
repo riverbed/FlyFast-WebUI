@@ -1,36 +1,18 @@
-# Dockerfile
-# 24.10.31
+FROM node:18.20.2-alpine AS react-build
 
-# Stage 1, Building React Application
-
-FROM node:lts-slim AS react-build
+# Pin npm for reproducible dependency behavior across local and CI builds.
+RUN npm install -g npm@10.5.0
 
 WORKDIR /app
+COPY package*.json ./
+RUN npm ci --legacy-peer-deps --prefer-offline --no-audit
 COPY . .
-
-## Dependencies
-
-# method 1: install deps from package.json (not immutable)
-# RUN npm install
-
-# method 1 with legacy
-# RUN npm install --legacy-peer-deps
-
-# method 2: clean-install will install dependencies from the package-lock.json (immutable)
-RUN npm clean-install 
-
-# method 2 with legacy
-# RUN npm clean-install --legacy-peer-deps
-
-## Build
-
 RUN npm run build
+RUN npm prune --production --legacy-peer-deps
 
-#######################################################################################
+FROM nginx:1.27.0-alpine
 
-# Stage 2, Setting Up Production Environment
-
-FROM nginx:1.27
+RUN apk add --no-cache curl gettext
 
 COPY default.conf.template /etc/nginx/conf.d/default.conf.template
 COPY --from=react-build /app/build /usr/share/nginx/html
@@ -39,6 +21,12 @@ ENV REACT_APP_FLIGHT_SEARCH="http://flyfast-flightsearch:8080"
 ENV REACT_APP_OPENTELEMETRY_ENDPOINT="http://apm-collector:55681"
 
 EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+	CMD curl -f http://localhost/ || exit 1
+
+LABEL maintainer="FlyFast Development Team"
+LABEL description="FlyFast Web UI static frontend"
 
 ## Initial command to launch the app
 # CMD /bin/bash -c "envsubst '\$REACT_APP_FLIGHT_SEARCH \$REACT_APP_OPENTELEMETRY_ENDPOINT' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'" 
