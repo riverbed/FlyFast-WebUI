@@ -1,527 +1,185 @@
-# Unit of Work Definition
+# Unit of Work Definitions  Vite Migration Cycle
 
 ## Overview
 
-This document defines the 3 units of work for the FlyFast-WebUI modernization project. Each unit is a logical grouping of development tasks that can be executed sequentially, with clear responsibilities, deliverables, and success criteria.
-
-**Total Units**: 3  
-**Execution Model**: Sequential (each unit builds on the previous)  
-**Total Scope**: 52 source files, 22 dependencies, complete codebase modernization
+Three sequential units execute this migration. Each unit is fully complete before the next begins.
+Completion gate for the entire cycle: `npm install` (clean) + `npm run type-check` + `npm test` (Vitest) + `npm run build` (Vite) all pass.
 
 ---
 
-## Unit 1: Dependency Updates & Configuration
-
-### Unit Identifier
-- **ID**: UNIT-001
-- **Name**: Dependency Updates & Configuration
-- **Phase**: CONSTRUCTION Phase - Unit 1
-- **Sequence**: First (Foundation for Units 2 & 3)
+## Unit 1  Toolchain and Dependencies
 
 ### Purpose
-Establish the technical foundation for TypeScript development by updating all dependencies to their latest versions, resolving peer dependency conflicts, and configuring the build system for TypeScript support.
+Replace the complete build and test toolchain, pin all dependency major versions, and eliminate legacy peer dependency handling. This unit establishes the foundation that Units 2 and 3 build on.
 
 ### Scope
 
-**In Scope**:
-- Update all 22 direct npm dependencies to latest stable versions
-- Resolve peer dependency conflicts (eliminate --legacy-peer-deps)
-- Create TypeScript configuration (tsconfig.json) with strict mode
-- Update build configuration for TypeScript compilation
-- Update Dockerfile base image version if needed
-- Regenerate package-lock.json
+**Dependency changes:**
+- Remove: `react-scripts`, `@types/jest`, `@testing-library/jest-dom` (will be re-added as Vitest-compatible versions)
+- Add: `vite`, `@vitejs/plugin-react`, `vitest`, `@vitest/ui`, `@testing-library/jest-dom` (vitest-compatible)
+- Update to target versions:
+  - `react`  19.2.x
+  - `react-dom`  19.2.x
+  - `@types/react`  19.x
+  - `@types/react-dom`  19.x
+  - `react-router-dom`  removed; `react-router`  7.x
+  - `@mantine/*`  8.3.x family
+  - `@opentelemetry/*`  compatible 2.x / 0.57+ stable set
+  - `web-vitals`  latest
+  - `react-icons`  latest
+  - `dayjs`  latest
+  - `http-proxy-middleware`  keep (used in Vite proxy)
+  
+**Config files created/updated:**
+- `vite.config.ts`  new file; dev server, proxy config (replacing setupProxy.js/.ts), React plugin, env prefix `VITE_`
+- `vitest.config.ts` (or inline in vite.config.ts)  jsdom environment, setupFiles, globals
+- `tsconfig.json`  target ES2020+, moduleResolution node/bundler, types updated (remove @types/jest)
+- `package.json`  scripts: `start`  `vite`, `build`  `vite build`, `test`  `vitest run`, `preview`  `vite preview`; remove `eslintConfig` (migrated to eslint.config.js if needed); remove `installConfig.legacyPeerDeps`; remove `browserslist` (handled by Vite)
+- `.npmrc`  remove `legacy-peer-deps=true`
+- `public/index.html`  **moved** to root-level `index.html` as Vite entry point; `%PUBLIC_URL%` tokens cleaned up; `<script type="module" src="/src/index.tsx">` added
 
-**Out of Scope**:
-- Converting JavaScript to TypeScript (Unit 2 responsibility)
-- Implementing Mantine v7 API changes (Unit 3 responsibility)
-- Code refactoring beyond config updates
-
-### Key Components
-- **package.json**: Update all 22 dependencies
-- **package-lock.json**: Regenerate with resolved conflicts
-- **tsconfig.json**: New TypeScript configuration (create)
-- **Dockerfile**: Update Node.js base image if needed
-- **Build configuration**: Update for TypeScript support
-
-### Dependencies
-- **Upstream**: None (foundation unit)
-- **Downstream**: Unit 2 (requires typed build system), Unit 3 (requires updated deps)
+**Files removed:**
+- `src/setupProxy.js` and `src/setupProxy.ts`  proxy moved to vite.config.ts
+- `src/reportWebVitals.ts`  optional; retain if desired, update imports if needed
 
 ### Success Criteria
-
-- [x] All production dependencies updated to latest stable versions
-- [x] All development dependencies updated to latest stable versions
-- [x] npm install works without --legacy-peer-deps flag
-- [x] No peer dependency warnings during installation
-- [x] tsconfig.json created with `strict: true`
-- [x] TypeScript compiler installed and functional
-- [x] Development server starts without errors
-- [x] Production build completes successfully
-- [x] Docker build completes successfully
-- [x] Dependency tree clean and valid
+- [ ] `npm install` completes without errors or legacy peer flag
+- [ ] `node_modules` has no conflicting peer dependency warnings at error level
+- [ ] `vite.config.ts` and test config are syntactically valid TypeScript
+- [ ] `public/index.html` (now `index.html` at root) is valid and Vite-compatible
+- [ ] `package.json` scripts reference Vite commands
 
 ### Deliverables
-
-1. **Updated package.json**
-   - All 22 dependencies at latest versions
-   - No --legacy-peer-deps workarounds
-   - TypeScript devDependency configured
-
-2. **Updated package-lock.json**
-   - Clean dependency tree
-   - All transitive dependencies resolved
-   - No duplicate dependencies
-
-3. **New tsconfig.json**
-   - React configuration
-   - Strict mode: true
-   - Module: esnext
-   - JSX: react-jsx
-   - Target: es2020
-   - Lib: es2020, dom, dom.iterable
-
-4. **Updated build configuration**
-   - Build scripts updated if needed
-   - React-scripts configured for TypeScript
-   - Webpack/Babel working with TypeScript
-
-5. **Updated Dockerfile** (if needed)
-   - Latest compatible Node.js LTS
-   - Multi-stage build working
-   - npm install without legacy flag
-
-### Technical Considerations
-
-**Peer Dependency Conflicts**:
-- Research compatibility matrix for all 22 dependencies
-- Test each update for compatibility
-- Document any overrides in package.json
-- Verify lock file is clean
-
-**TypeScript Configuration**:
-- Use strict mode for maximum type safety
-- Configure for React 18.3.1
-- Enable all strict checks (noImplicitAny, strictNullChecks, etc.)
-- Set proper module resolution
-
-**Build System**:
-- Verify react-scripts version compatibility
-- Test development server with TypeScript
-- Test production build with TypeScript
-- Ensure build performance acceptable
-
-### Team Responsibilities
-
-- **TypeScript Configuration**: Configure tsconfig.json with strict mode
-- **Dependency Updates**: Update package.json with latest versions
-- **Conflict Resolution**: Identify and resolve peer dependency conflicts
-- **Verification**: Test clean install and builds
-
-### Risks
-
-- **Risk**: Peer dependency conflicts cannot be resolved
-  - **Severity**: High
-  - **Mitigation**: Research compatibility, consider version alternatives, use npm overrides if necessary
-  
-- **Risk**: TypeScript compiler incompatible with build system
-  - **Severity**: Medium
-  - **Mitigation**: Test TypeScript with react-scripts version, update scripts if needed
-
-### Estimated Effort
-- **Duration**: 2-3 hours
-- **Breakdown**:
-  - Dependency research and updates: 1 hour
-  - Peer dependency resolution: 1 hour
-  - TypeScript configuration: 30 minutes
-  - Build system verification: 30 minutes
+- Updated `package.json`
+- Deleted/cleared `.npmrc`
+- New `vite.config.ts`
+- Updated `tsconfig.json`
+- New root-level `index.html`
+- Removed `src/setupProxy.js` and `src/setupProxy.ts`
 
 ---
 
-## Unit 2: TypeScript Conversion
-
-### Unit Identifier
-- **ID**: UNIT-002
-- **Name**: TypeScript Conversion
-- **Phase**: CONSTRUCTION Phase - Unit 2
-- **Sequence**: Second (Requires Unit 1)
+## Unit 2  Application Code Migration
 
 ### Purpose
-Migrate entire JavaScript codebase to TypeScript with strict type checking, ensuring type safety across all components and services while maintaining existing functionality.
+Update source code to compile and run correctly against React 19, React Router 7, and OpenTelemetry 2.6 APIs. Move test infrastructure to Vitest.
 
 ### Scope
 
-**In Scope**:
-- Convert all 23 React components (.js → .tsx)
-- Convert all 6 service modules (.js → .ts)
-- Convert all utility functions (.js → .ts)
-- Convert entry points (index.js, App.js → .ts)
-- Create type definitions for all APIs and data structures
-- Update imports to utilize TypeScript types
-- Resolve all TypeScript compilation errors
+**React Router 7 migration:**
+- Remove `react-router-dom` package imports throughout; replace with `react-router`
+- React Router 7 re-exports all previously DOM-specific APIs from the main `react-router` package when using `createBrowserRouter` or via module flags
+- Key updated imports: `BrowserRouter`, `Routes`, `Route`, `useNavigate`, `useSearchParams`, `Link`, `useLocation`
+- Evaluate whether to stay with declarative `<BrowserRouter>` pattern or adopt `createBrowserRouter`; use whichever compiles without error
 
-**Out of Scope**:
-- Updating dependency versions (Unit 1 responsibility)
-- Implementing Mantine v7 API changes (Unit 3 responsibility)
-- Adding new features or refactoring beyond type implementation
+**React 19 migration:**
+- `React.createRef` / callback ref patterns (minor updates if TypeScript errors arise)
+- ReactDOM.render is already removed (was done in prior cycle using root API)
+- `act()` import path changes (from `react` rather than `react-dom/test-utils` for tests)
+- Remove any deprecated `defaultProps` on function components if TypeScript errors
+- Handle any React 19 strict mode double-invocation behavior differences in tests
 
-### Key Components
+**OpenTelemetry 2.6 migration (`src/services/Tracing.ts`, `src/services/CustomTracing.ts`):**
+- Review `@opentelemetry/api` 2.x changes (noop tracer, context API)
+- Review `@opentelemetry/sdk-trace-web` / `sdk-trace-base` 2.x changes
+- Review `@opentelemetry/instrumentation` 0.57+ API surface changes
+- Update registration/provider setup patterns to match new SDK initializer APIs
+- Check `@opentelemetry/context-zone` compatibility; replace with `@opentelemetry/context-async-hooks` if browser target issue
 
-**React Components** (23 files):
-- Pages: Home.js, SearchFlight.js, Checkout.js
-- Layout: ApplicationContainer.js, ApplicationHeader.js
-- Feature: Search.js, SearchResults.js, Results.js, NoResults.js, TripCard.js, Flight.js, Cart.js, EmptyCart.js, Confirmation.js, Cost.js, Username.js, etc.
+**Environment variable migration:**
+- All `process.env.REACT_APP_*` references  `import.meta.env.VITE_*`
+- Update `.env.example` with `VITE_` prefixed variable names
+- Update `default.conf.template` env var injection if it reflects REACT_APP names
 
-**Services** (6 files):
-- Context.js → Context.tsx (state management)
-- Flight.js → Flight.ts (API client)
-- Tracing.js → Tracing.ts (OpenTelemetry setup)
-- CustomTracing.js → CustomTracing.ts (custom tracing)
-- Functions.js → Functions.ts (utilities)
-- AirportInformation.js → AirportInformation.ts
-
-**Entry Points** (5 files):
-- index.js → index.ts
-- App.js → App.tsx
-- setupProxy.js → setupProxy.ts
-- setupTests.js → setupTests.ts
-- reportWebVitals.js → reportWebVitals.ts
-
-**Type Definitions** (new files):
-- types/api.ts (Flight, Airport types)
-- types/context.ts (Cart, search state types)
-- types/components.ts (component props)
-- types/index.ts (re-exports)
-
-### Dependencies
-- **Upstream**: Unit 1 (requires TypeScript config, updated deps)
-- **Downstream**: Unit 3 (provides typed codebase)
+**Test infrastructure migration:**
+- `src/setupTests.ts`  replace `@testing-library/jest-dom` Jest-specific import with Vitest-compatible version
+- `src/App.test.tsx`  update `act()` import, ensure test works under Vitest
+- Remove any `@types/jest` globals usage; use Vitest's `describe`/`it`/`expect` globals (if `globals: true` set in vitest config)
 
 ### Success Criteria
-
-- [x] All 52 files converted to TypeScript (.ts/.tsx)
-- [x] TypeScript compiles without errors
-- [x] Strict mode enabled and enforced (strict: true)
-- [x] No implicit 'any' types
-- [x] Type coverage > 95%
-- [x] All component props properly typed
-- [x] All API responses have types
-- [x] All service functions have signatures
-- [x] Development server runs successfully
-- [x] Production build succeeds
+- [ ] `npm run type-check` passes (0 errors)
+- [ ] `npm test` (Vitest) passes all tests
+- [ ] Application starts in dev mode (`npm start`) without crash
+- [ ] Routing navigates correctly between pages
 
 ### Deliverables
-
-1. **Converted Components**
-   - All 23 .tsx files with proper prop types
-   - All component props interfaces defined
-   - All useState/useContext hooks typed
-
-2. **Converted Services**
-   - All 6 .ts files with function signatures
-   - All API response types defined
-   - All utility function types defined
-
-3. **Type Definitions**
-   - types/api.ts - Flight, Airport, Seat, Trip types
-   - types/context.ts - CartContext, Cart item types
-   - types/components.ts - Common component props
-   - types/index.ts - Re-exports
-
-4. **Updated Entry Points**
-   - index.ts with proper bootstrap typing
-   - App.tsx with route types
-   - Configuration files converted
-
-5. **Zero Compilation Errors**
-   - TypeScript check passes
-   - ESLint passes for TypeScript files
-   - No type errors or warnings
-
-### Conversion Strategy
-
-**Conversion Sequence**: Bottom-up (services → utilities → components)
-- **Phase 1**: Convert services (Context, Flight, Tracing) with full type definitions
-- **Phase 2**: Convert utilities (Functions, AirportInformation) with proper signatures
-- **Phase 3**: Convert components (bottom-up through component hierarchy)
-- **Phase 4**: Convert entry points and fix imports
-
-**Type Definition Approach**:
-- Define API response types first (Flight, Airport, etc.)
-- Define component prop interfaces as components are converted
-- Use generics for reusable types
-- Create a types/ directory for centralized type definitions
-
-### Technical Considerations
-
-**Type Safety**:
-- Enable strict mode for maximum type safety
-- Use discriminated unions for complex types
-- Implement proper Error types
-- Type async operations (Promise, async/await)
-
-**Configuration**:
-- tsconfig.json with strict: true
-- Proper module resolution
-- Source maps for debugging
-- Include declaration files if needed
-
-**Testing During Conversion**:
-- Compile after each service conversion
-- Verify development server after each batch
-- Check bundle size impact
-- Spot-check UI components after conversion
-
-### Team Responsibilities
-
-- **Service Conversion**: Convert all 6 services with types
-- **Type Definition Creation**: Define API and component types
-- **Component Conversion**: Convert 23 components top-down through hierarchy
-- **Error Resolution**: Fix all TypeScript errors
-- **Verification**: Ensure zero compilation errors
-
-### Risks
-
-- **Risk**: TypeScript conversion introduces subtle bugs
-  - **Severity**: High
-  - **Mitigation**: Strict mode catches most issues, incremental testing, visual verification
-  
-- **Risk**: Type definitions incomplete or incorrect
-  - **Severity**: Medium
-  - **Mitigation**: Test all code paths, type coverage > 95%
-
-### Estimated Effort
-- **Duration**: 6-8 hours
-- **Breakdown**:
-  - Service conversion + types: 2 hours
-  - Utility conversion + types: 1 hour
-  - Component conversion + types: 4-5 hours
-  - Error resolution: 1-2 hours
+- Updated routing imports in `src/App.tsx` and all page/component files using router APIs
+- Updated `src/services/Tracing.ts` and `src/services/CustomTracing.ts`
+- Updated `src/setupTests.ts`
+- Updated `src/App.test.tsx`
+- Updated `.env.example`
+- Updated `src/index.tsx` (env var references)
+- Env var references patched in all service files
 
 ---
 
-## Unit 3: Mantine v7 Migration
-
-### Unit Identifier
-- **ID**: UNIT-003
-- **Name**: Mantine v7 Migration
-- **Phase**: CONSTRUCTION Phase - Unit 3
-- **Sequence**: Third (Requires Units 1 & 2)
+## Unit 3  Mantine 8.x Migration and Documentation
 
 ### Purpose
-Migrate all Mantine UI components from v6 API to v7 API, ensuring visual parity and component functionality while leveraging TypeScript types for improved developer experience.
+Update all Mantine component usage from 7.x API to 8.x API, verify the Docker build still works, and update README.
 
 ### Scope
 
-**In Scope**:
-- Update all Mantine component usage to v7 API
-- Update Mantine hooks (useLocalStorage) to v7 API
-- Update styling if breaking changes from v6→v7
-- Update component imports (@mantine/core, @mantine/dates, @mantine/hooks)
-- Verify visual appearance and functionality
-- Update TypeScript types for v7 APIs
+**Mantine 8.x migration:**
 
-**Out of Scope**:
-- Updating dependencies (Unit 1 responsibility)
-- Converting to TypeScript (Unit 2 responsibility)
-- Adding new features or components
+Breaking changes to address (from Mantine 78 migration guide):
+- `MantineProvider` theme structure changes (cssVariablesResolver, theme defaults)
+- `AppShell` API changes if any
+- Component prop renames / removed props
+- `@mantine/dates` API surface changes for `DatePickerInput`
+- `useLocalStorage` hook changes in `@mantine/hooks`
+- Emotion  CSS-in-JS changes (Mantine 8 ships with no Emotion dependency; `@emotion/cache` and `@emotion/react` may be removable)
+- CSS import strategy: verify `@mantine/core/styles.css` import still valid or updated import path
 
-### Key Components
+**Affected files:**
+- `src/App.tsx`  MantineProvider / ColorSchemeScript
+- `src/components/ApplicationContainer/ApplicationContainer.tsx`  AppShell, theme
+- `src/components/ApplicationContainer/ApplicationHeader.tsx`  Group, Button, etc.
+- `src/components/Search/*.tsx`  Autocomplete, NativeSelect, DatePickerInput, Button, Grid, etc.
+- `src/components/SearchResults/*.tsx`  Grid, Group, Paper, LoadingOverlay
+- `src/components/Cart/*.tsx`  Group, Stack, Text, Button
+- `src/components/TripCard/*.tsx`  Paper, Group, Text, Badge
+- `src/components/Breakdown/*.tsx`  Text, Group, Stack
+- `src/components/Flight/Flight.tsx`  any Mantine usage
+- `src/services/Context.tsx`  `useLocalStorage` from `@mantine/hooks`
+- `src/pages/**/*.tsx`  Stepper or other Mantine page-level usage
 
-**Mantine Components Used**:
-- **@mantine/core**: Grid, Group, Paper, Button, LoadingOverlay, TextInput, Select, etc.
-- **@mantine/dates**: DatePickerInput
-- **@mantine/hooks**: useLocalStorage
+**Emotion cleanup:**
+- Remove `@emotion/cache` and `@emotion/react` from package.json if unused by Mantine 8
 
-**Components to Migrate**:
-- **Search.tsx**: Autocomplete, NativeSelect, DatePickerInput, Grid, Group
-- **ApplicationContainer.tsx**: Cart management
-- **SearchResults.tsx**: Results display
-- **TripCard.tsx**: Flight card display
-- **Cart.tsx**: Cart display, EmptyCart
-- **Checkout.tsx**: Checkout form
-- **App.tsx**: LoadingOverlay
-- **Context.tsx**: useLocalStorage hook
+**Docker verification:**
+- Run `npm run build` and confirm output in `dist/` (Vite default) not `build/`
+- Update `Dockerfile` COPY path from `build/` to `dist/`
+- Verify multi-stage Docker build produces valid container
 
-### Dependencies
-- **Upstream**: Unit 2 (requires TypeScript codebase)
-- **Downstream**: Build & Test (final verification)
+**Documentation:**
+- `README.md`  update scripts table (start/build/test/preview), note Vite migration, note React Router package migration, note dependency versions
+- Remove references to `react-scripts`, `REACT_APP_` env vars, Jest
 
 ### Success Criteria
-
-- [x] All @mantine packages upgraded to v7.x
-- [x] All Mantine components updated to v7 API
-- [x] No v6 API imports remaining
-- [x] No deprecation warnings
-- [x] Visual appearance identical to pre-migration
-- [x] Component functionality verified
-- [x] All TypeScript types for v7
-- [x] Development build succeeds
-- [x] Production build succeeds
+- [ ] `npm run build` (Vite) produces `dist/` with no errors
+- [ ] `npm run type-check` still passes after Mantine 8 changes
+- [ ] `npm test` still passes
+- [ ] Docker build succeeds (Dockerfile COPY `dist/`)
+- [ ] All Mantine components render visually as expected
 
 ### Deliverables
-
-1. **Updated Components**
-   - All components using v7 Mantine API
-   - No v6 imports (from @mantine/*)
-   - TypeScript types for v7 components
-
-2. **Updated Hooks**
-   - useLocalStorage hook updated to v7 API
-   - Proper typing for hooks
-
-3. **Updated Styling** (if needed)
-   - CSS updated for v7 style changes
-   - Theme configuration updated if needed
-
-4. **Breaking Changes Addressed**
-   - Component prop changes implemented
-   - API changes addressed
-   - Renamed components updated
-
-5. **Verified Functionality**
-   - All components render correctly
-   - All interactions work as before
-   - No console errors
-
-### Migration Strategy
-
-**Testing Approach**: Visual regression testing (before/after screenshots)
-- **Phase 1**: Analyze Mantine v6→v7 migration guide
-- **Phase 2**: Update components in dependency order
-- **Phase 3**: Test components with visual verification
-- **Phase 4**: Verify all core flows work
-
-**Component Update Order**:
-1. Hook updates (useLocalStorage in Context.tsx)
-2. Low-level components (Button, TextInput, etc.)
-3. Layout components (Grid, Group, Paper)
-4. Complex components (Search, Cart, Results)
-5. Page components (App.tsx, all pages)
-
-### Technical Considerations
-
-**Breaking Changes**:
-- Research Mantine v6→v7 migration guide thoroughly
-- Document all component API changes
-- Create migration checklist for all components
-- Test each change for visual regression
-
-**Bundle Size**:
-- Monitor bundle size during migration
-- Use code splitting effectively
-- Optimize imports from @mantine/core
-- Goal: Monitor and optimize if needed (no hard limit)
-
-**Type Updates**:
-- Update component type definitions for v7
-- Update hook types for v7 API
-- Ensure TypeScript catches breaking changes
-
-### Team Responsibilities
-
-- **Migration Guide Analysis**: Document all v6→v7 changes
-- **Component Migration**: Update all components to v7 API
-- **Visual Testing**: Verify visual appearance before/after
-- **Functionality Testing**: Verify all interactions work
-- **Build Verification**: Ensure builds succeed
-
-### Risks
-
-- **Risk**: Mantine v7 breaking changes more extensive than expected
-  - **Severity**: High
-  - **Mitigation**: Thorough analysis of migration guide, incremental migration approach
-  
-- **Risk**: Visual regressions not caught until late
-  - **Severity**: High
-  - **Mitigation**: Visual verification after each component, comprehensive testing before final
-
-### Estimated Effort
-- **Duration**: 4-6 hours
-- **Breakdown**:
-  - Migration guide analysis: 1 hour
-  - Component updates: 3-4 hours
-  - Visual verification: 1 hour
+- All updated component files
+- Updated `Dockerfile`
+- Updated `README.md`
+- Cleaned `package.json` (Emotion packages removed if unused)
 
 ---
 
-## Unit Handoff and Coordination
+## Inter-Unit Dependencies
 
-### Unit 1 → Unit 2 Handoff
+```
+Unit 1 (Toolchain) ---> Unit 2 (App Code) ---> Unit 3 (Mantine + Docs)
+     |                        |                         |
+  Vite/Vitest             Router 7 imports          Mantine 8 APIs
+  installed               OTel 2.6 APIs             Docker build path
+  pkg.json clean          Env var prefix             README updated
+```
 
-**Unit 1 Completion Verification**:
-- [x] npm install works without --legacy-peer-deps
-- [x] All 22 dependencies updated
-- [x] tsconfig.json created with strict: true
-- [x] TypeScript compiler installed and functional
-- [x] Development server starts
-- [x] Production build succeeds
-
-**Unit 2 Readiness**:
-- [x] TypeScript tooling ready
-- [x] Build system configured for .ts/.tsx
-- [x] IDE tooling functional
-- [x] All dependencies locked in package-lock.json
-
-**Handoff Artifact**: `package-lock.json`, `tsconfig.json`, updated build configuration
-
----
-
-### Unit 2 → Unit 3 Handoff
-
-**Unit 2 Completion Verification**:
-- [x] All 52 files converted to TypeScript
-- [x] Zero TypeScript compilation errors
-- [x] Strict mode enabled and enforced
-- [x] Type coverage > 95%
-- [x] Development server runs with TypeScript
-- [x] Production build succeeds
-
-**Unit 3 Readiness**:
-- [x] Type-safe codebase ready for API migration
-- [x] All components have proper typing
-- [x] Services have proper type signatures
-- [x] Ready for Mantine v7 API updates
-
-**Handoff Artifact**: All .ts/.tsx files with types, complete type definitions
-
----
-
-### Unit 3 → Build & Test Handoff
-
-**Unit 3 Completion Verification**:
-- [x] All Mantine v7 APIs implemented
-- [x] No deprecated v6 APIs remaining
-- [x] Visual appearance verified
-- [x] Component functionality verified
-- [x] Development build succeeds
-- [x] Production build succeeds
-
-**Build & Test Readiness**:
-- [x] All code updated and compiled
-- [x] No breaking changes remaining
-- [x] Ready for comprehensive testing
-- [x] Ready for deployment verification
-
-**Handoff Artifact**: All source code converted, tested, and ready for final build/deployment
-
----
-
-## Summary
-
-| Unit | Name | Scope | Duration | Sequence | Dependencies |
-|------|------|-------|----------|----------|--------------|
-| 1 | Dependencies & Config | 22 deps, tsconfig, build config | 2-3h | First (Foundation) | None |
-| 2 | TypeScript Conversion | 52 files, type definitions | 6-8h | Second (Requires Unit 1) | Unit 1 |
-| 3 | Mantine v7 Migration | All components, hooks, APIs | 4-6h | Third (Requires Unit 2) | Unit 2 |
-| - | Build & Test | Full verification | 2-3h | Final | Unit 3 |
-
-**Total Estimated Duration**: 14-20 hours of development time
-
-**Execution Style**: Sequential (each unit builds on previous)
-
-**Risk Level**: Medium-High (mitigated by incremental approach and checkpoints)
-
----
-
-**Document Version**: 1.0  
-**Created**: 2026-03-09
+Unit 2 cannot start until Unit 1 installs cleanly and the project compiles.
+Unit 3 cannot start until Unit 2 achieves a passing type-check and test run.

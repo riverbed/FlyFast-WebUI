@@ -17,7 +17,7 @@
     "target": "ES2020",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "jsx": "react-jsx",
 
     "esModuleInterop": true,
@@ -27,11 +27,10 @@
     "skipLibCheck": true,
     "isolatedModules": true,
 
-    // Keep emit enabled so build tooling can transpile when required.
-    "noEmit": false,
-    "declaration": true,
-    "declarationMap": true,
+    // TypeScript is used for checking only; Vite handles bundling.
+    "noEmit": true,
     "sourceMap": true,
+    "types": ["vitest/globals"],
 
     // Alias mapping improves IDE navigation and import autocomplete.
     "baseUrl": "./src",
@@ -39,6 +38,6 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"],
   "exclude": ["node_modules", "build", "dist"]
 }

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { ActionIcon, Group, UnstyledButton } from "@mantine/core";
 import { MdLightMode, MdDarkMode } from "react-icons/md";
 import { BsFillCartFill } from "react-icons/bs";

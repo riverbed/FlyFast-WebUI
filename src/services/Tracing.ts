@@ -1,4 +1,4 @@
-import { Resource } from "@opentelemetry/resources";
+import { resourceFromAttributes } from "@opentelemetry/resources";
 import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import {
@@ -20,16 +20,18 @@ const Tracing = (): Tracer | null => {
   const serviceName = "FlyFast-WebUI";
 
   try {
-    const resource = new Resource({ "service.name": serviceName });
+    const resource = resourceFromAttributes({ "service.name": serviceName });
     const collector = new OTLPTraceExporter({ url: traceEndpoint });
-    const provider = new WebTracerProvider({ resource });
 
-    if (process.env.NODE_ENV === "production") {
-      provider.addSpanProcessor(new BatchSpanProcessor(collector));
-    } else {
-      provider.addSpanProcessor(new SimpleSpanProcessor(new ConsoleSpanExporter()));
-      provider.addSpanProcessor(new SimpleSpanProcessor(collector));
-    }
+    const spanProcessors =
+      process.env.NODE_ENV === "production"
+        ? [new BatchSpanProcessor(collector)]
+        : [
+            new SimpleSpanProcessor(new ConsoleSpanExporter()),
+            new SimpleSpanProcessor(collector),
+          ];
+
+    const provider = new WebTracerProvider({ resource, spanProcessors });
 
     provider.register({
       contextManager: new ZoneContextManager(),

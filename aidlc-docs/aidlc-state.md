@@ -3,53 +3,58 @@
 ## Project Information
 - **Project Type**: Brownfield React SPA
 - **Start Date**: 2026-03-09T00:00:00Z
-- **Current Stage**: OPERATIONS - Placeholder (ACKNOWLEDGED)
+- **Current Stage**: OPERATIONS - Placeholder Acknowledged (WORKFLOW COMPLETE)
 - **Original Request**: Update project dependencies to latest versions and update codebase accordingly
+- **Latest Request**: Upgrade React, Mantine, OpenTelemetry, and React Router to latest compatible versions; migrate from react-scripts to Vite/Vitest; remove legacyPeerDeps; apply code updates for breaking changes
 - **Total Source Files**: 52 files
-- **Current Stack**: React 18.3.1, Mantine v7.17.8, TypeScript strict mode
-- **Target Stack**: Latest React, Mantine v7.x, TypeScript strict mode
+- **Current Stack**: React 18.3.1, Mantine v7.17.8, TypeScript strict mode, react-scripts
+- **Target Stack**: React 19.2, Mantine 8.3, React Router 7, OTel 2.6, Vite, Vitest, no legacy peer deps
 
-## Execution Plan Summary
+## Execution Plan Summary (Vite Migration Cycle)
 - **Total Units**: 3 sequential units
-- **Unit 1**: Dependency Updates & Configuration
-- **Unit 2**: TypeScript Conversion
-- **Unit 3**: Mantine v7 Migration
-- **Estimated Duration**: 14-20 hours
+- **Unit 1**: Toolchain & Dependencies (Vite, Vitest, package.json, tsconfig, env vars, proxy)
+- **Unit 2**: Application Code Migration (React 19, React Router 7, OTel 2.6)
+- **Unit 3**: Mantine 8.x Migration + Docs
 - **Risk Level**: Medium-High
 
-## Units to Execute
-1. **Unit 1 - Dependency Updates & Configuration**
-   - NFR Requirements: EXECUTE
-   - NFR Design: EXECUTE
-   - Code Planning: EXECUTE
-   - Code Generation: EXECUTE
-   
-2. **Unit 2 - TypeScript Conversion**
-   - NFR Requirements: EXECUTE
-   - NFR Design: EXECUTE
-   - Code Planning: EXECUTE
-   - Code Generation: EXECUTE
-   
-3. **Unit 3 - Mantine v7 Migration**
-   - NFR Requirements: EXECUTE
-   - NFR Design: EXECUTE
-   - Code Planning: EXECUTE
+## Units to Execute (Vite Migration Cycle)
+1. **Unit 1 - Toolchain & Dependencies**
+   - NFR Requirements: SKIP
+   - NFR Design: SKIP
+   - Functional Design: SKIP
+   - Infrastructure Design: SKIP
    - Code Generation: EXECUTE
 
-## Stages to Skip
-- **User Stories**: Technical upgrade with no user-facing changes
-- **Application Design**: No new components or architecture changes
-- **Functional Design** (all units): No new functionality, pure migration
+2. **Unit 2 - Application Code Migration**
+   - NFR Requirements: SKIP
+   - NFR Design: SKIP
+   - Functional Design: SKIP
+   - Infrastructure Design: SKIP
+   - Code Generation: EXECUTE
+
+3. **Unit 3 - Mantine 8.x Migration + Docs**
+   - NFR Requirements: SKIP
+   - NFR Design: SKIP
+   - Functional Design: SKIP
+   - Infrastructure Design: SKIP
+   - Code Generation: EXECUTE
+
+## Stages to Skip (Vite Migration Cycle)
+- **User Stories**: Pure technical migration, no user-facing changes
+- **Application Design**: No new components or architecture
+- **Functional Design** (all units): No new business logic
+- **NFR Requirements** (all units): NFRs fully captured in requirements.md
+- **NFR Design** (all units): No new patterns required
 - **Infrastructure Design** (all units): No infrastructure changes
 
 ## Workspace State
 - **Existing Code**: Yes
 - **Programming Languages**: TypeScript, React
-- **Build System**: npm with react-scripts
+- **Build System**: npm (migrating from react-scripts to Vite)
 - **Project Structure**: React Single Page Application
 - **Workspace Root**: c:\Repositories\Test Repos\FlyFast-WebUI
-- **Reverse Engineering Needed**: Yes
-- **Reverse Engineering Artifacts**: Generated (9 artifacts)
+- **Reverse Engineering Needed**: No (artifacts exist)
+- **Reverse Engineering Artifacts**: Generated (9 artifacts from prior cycle)
 
 ## Code Location Rules
 - **Application Code**: Workspace root (NEVER in aidlc-docs/)
@@ -61,24 +66,26 @@
 |-----------|---------|------------|
 | security-baseline | No | Requirements Analysis |
 
-## Stage Progress
+## Stage Progress (Vite Migration Cycle)
 - ✅ Workspace Detection (COMPLETED)
-- ✅ Reverse Engineering (COMPLETED)
+- ⏭️ Reverse Engineering (SKIPPED - artifacts exist)
 - ✅ Requirements Analysis (COMPLETED)
-- ⏭️ User Stories (SKIPPED - No user-facing changes)
+- ⏭️ User Stories (SKIPPED - no user-facing changes)
 - ✅ Workflow Planning (COMPLETED)
-- ⏭️ Application Design (SKIP - No new components/architecture)
-- ✅ Units Generation (COMPLETED - 3 units defined)
+- ⏭️ Application Design (SKIPPED - no new components)
+- ✅ Units Generation (COMPLETED)
 
 ### Construction Phase Units (Sequential Execution)
-- ✅ Unit 1: Dependencies & Config (COMPLETED)
-  - NFR Requirements ✅, NFR Design ✅, Code Planning ✅, Code Generation ✅
-- ✅ Unit 2: TypeScript Conversion (COMPLETED)
-  - NFR Requirements ✅, NFR Design ✅, Code Planning ✅, Code Generation ✅, Build & Test ✅
-- ✅ Unit 3: Mantine v7 Migration (COMPLETED)
-  - NFR Requirements ✅, NFR Design ✅, Code Planning ✅, Code Generation ✅
-- ✅ Final Build and Test (COMPLETED)
-- ✅ Operations (PLACEHOLDER ACKNOWLEDGED - Workflow complete)
+- ✅ Unit 1: Toolchain & Dependencies
+  - Code Generation: COMPLETED — APPROVED
+
++ ✅ Unit 2: Application Code Migration
++   - Code Generation: COMPLETED — APPROVED
+
++ ✅ Unit 3: Mantine 8.x Migration + Docs
++   - Code Generation: COMPLETED — APPROVED
+- ✅ Final Build and Test (COMPLETED — AWAITING APPROVAL TO PROCEED TO OPERATIONS)
+- ✅ Operations (PLACEHOLDER — ACKNOWLEDGED)
 
 ## Execution History
 ### Workspace Detection

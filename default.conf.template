@@ -8,11 +8,11 @@ server {
   }
 
   location /flightsearchapi {
-    proxy_pass ${REACT_APP_FLIGHT_SEARCH};
+    proxy_pass ${VITE_FLIGHT_SEARCH};
   }
 
   location /tracingapi {
     rewrite /tracingapi/(.*) /$1 break;
-    proxy_pass ${REACT_APP_OPENTELEMETRY_ENDPOINT};
+    proxy_pass ${VITE_OPENTELEMETRY_ENDPOINT};
   }
 }

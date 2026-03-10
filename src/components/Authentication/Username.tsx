@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router";
 
 const Username = () => {
   const [searchParams] = useSearchParams();

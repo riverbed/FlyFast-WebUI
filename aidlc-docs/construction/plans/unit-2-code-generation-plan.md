@@ -1,125 +1,88 @@
-# Unit 2 Code Generation Plan
+# Unit 2 Code Generation Plan — Vite Migration Cycle
 
 ## Unit Context
-**Unit 2**: TypeScript Conversion  
-**Scope**: Convert JavaScript React codebase to TypeScript with strict checks while preserving behavior and UI  
+**Unit**: 2 — Application Code Migration  
+**Scope**: Update source code to compile and run correctly against React Router 7, and OpenTelemetry 2.x APIs. Fix all remaining TypeScript errors from the Unit 1 baseline type-check.  
 **Project Type**: Brownfield React SPA  
-**Dependencies**:
-- Unit 1 complete (dependencies updated, tsconfig.json, .npmrc, Functions.ts)
-- NFR Requirements complete
-- NFR Design complete
+**Dependencies**: Unit 1 complete (Vite toolchain installed, package.json updated)
 
 ## Stories Implemented
-- **User Stories**: Not applicable (User Stories skipped for this modernization effort)
+- **User Stories**: Not applicable (skipped — pure technical migration)
 
-## Interfaces and Contracts
-- Preserve existing API contracts for `src/services/Flight` and `setupProxy` endpoints
-- Preserve OpenTelemetry tracing initialization and span behavior
-- Preserve component props and behavior across all routes
-- No UI/UX changes (TypeScript-only migration)
+## Baseline State (from Unit 1 type-check)
+18 TypeScript errors across 8 files:
+- `src/App.tsx` (1 error): `react-router-dom` module not found
+- `src/components/ApplicationContainer/ApplicationHeader.tsx` (1 error): `react-router-dom` module not found
+- `src/components/Authentication/Username.tsx` (1 error): `react-router-dom` module not found
+- `src/components/Search/Search.tsx` (3 errors): `react-router-dom` not found + `DatesRangeValue<string>` cast incompatibility
+- `src/components/SearchResults/SearchResults.tsx` (1 error): `react-router-dom` module not found
+- `src/pages/SearchFlight/SearchFlight.tsx` (1 error): `react-router-dom` module not found
+- `src/services/CustomTracing.ts` (5 errors): `Resource` is a type only (not a value); `addSpanProcessor` removed from `WebTracerProvider`
+- `src/services/Tracing.ts` (5 errors): same OTel API errors as CustomTracing.ts
 
 ## Files in Scope
 
-### Services and Utilities
-- `src/services/Context.js` → `Context.tsx`
-- `src/services/Flight.js` → `Flight.ts`
-- `src/services/Tracing.js` → `Tracing.ts`
-- `src/services/CustomTracing.js` → `CustomTracing.ts`
-- `src/services/Functions.ts` (already converted in Unit 1; verify types only)
-
-### Root Infrastructure
-- `src/index.js` → `index.tsx`
-- `src/reportWebVitals.js` → `reportWebVitals.ts`
-- `src/setupProxy.js` → `setupProxy.ts`
-- `src/setupTests.js` → `setupTests.ts`
-- `src/App.test.js` → `App.test.tsx`
-
-### Components (All JSX)
-- `src/components/**/**/*.js` → `**/*.tsx` (ApplicationContainer, Authentication, Search, TripCard, Flight, Cart, Breakdown, SearchResults)
-
-### Pages (All JSX)
-- `src/pages/**/**/*.js` → `**/*.tsx` (Home, SearchFlight, Checkout)
-
-### App Root
-- `src/App.js` → `App.tsx`
-
-### Optional Type Declarations (if needed)
-- `src/types/*.d.ts` (only for untyped third-party libraries)
+| File | Change Type | Change Summary |
+|------|-------------|----------------|
+| `src/App.tsx` | Modify | `react-router-dom` → `react-router` |
+| `src/components/ApplicationContainer/ApplicationHeader.tsx` | Modify | `react-router-dom` → `react-router` |
+| `src/components/Authentication/Username.tsx` | Modify | `react-router-dom` → `react-router` |
+| `src/components/Search/Search.tsx` | Modify | `react-router-dom` → `react-router`; fix `DatesRangeValue` type casts |
+| `src/components/SearchResults/SearchResults.tsx` | Modify | `react-router-dom` → `react-router` |
+| `src/pages/SearchFlight/SearchFlight.tsx` | Modify | `react-router-dom` → `react-router` |
+| `src/services/Tracing.ts` | Modify | `Resource` → `resourceFromAttributes`; `spanProcessors` in constructor |
+| `src/services/CustomTracing.ts` | Modify | `Resource` → `resourceFromAttributes`; `spanProcessors` in constructor |
 
 ---
 
 ## Code Generation Steps (Plan)
 
-### Step 1: Pre-Conversion Validation
-- [x] Confirm `tsconfig.json` strict mode settings are active and compatible with CRA
-- [x] Confirm `@types/react`, `@types/react-dom`, `@types/node` installed
-- [x] Confirm `npm run type-check` passes with current state
+### Step 1: React Router 7 Import Migration
+- [x] `src/App.tsx`: `from "react-router-dom"` → `from "react-router"`
+- [x] `src/components/ApplicationContainer/ApplicationHeader.tsx`: `from "react-router-dom"` → `from "react-router"`
+- [x] `src/components/Authentication/Username.tsx`: `from "react-router-dom"` → `from "react-router"`
+- [x] `src/components/Search/Search.tsx`: `from "react-router-dom"` → `from "react-router"`
+- [x] `src/components/SearchResults/SearchResults.tsx`: `from "react-router-dom"` → `from "react-router"`
+- [x] `src/pages/SearchFlight/SearchFlight.tsx`: `from "react-router-dom"` → `from "react-router"`
 
-### Step 2: Phase 1 - Convert Services and Utilities
-- [x] Convert `Context.js` to `Context.tsx` with fully typed context values and provider
-- [x] Convert `Flight.js` to `Flight.ts` with typed API models and return types
-- [x] Convert `Tracing.js` and `CustomTracing.js` to `.ts` with explicit types
-- [x] Verify `Functions.ts` types are still accurate and referenced correctly
-- [x] Update imports referencing converted service files
+**Reasoning**: React Router 7 merged `react-router-dom` back into `react-router`. All previously DOM-specific exports (`BrowserRouter`, `Link`, `Routes`, `Route`, `useNavigate`, `useSearchParams`) are now re-exported from the main `react-router` package. The `react-router-dom` package is no longer installed.
 
-### Step 3: Phase 2 - Convert Root Infrastructure
-- [x] Convert `index.js` to `index.tsx` and update React root typing
-- [x] Convert `reportWebVitals.js` to `reportWebVitals.ts` with typed callback
-- [x] Convert `setupProxy.js` to `setupProxy.ts` with pragmatic types as needed
-- [x] Convert `setupTests.js` to `setupTests.ts` and ensure Jest typings
-- [x] Convert `App.test.js` to `App.test.tsx` and update test typings
+### Step 2: OpenTelemetry 2.x API Migration — `src/services/Tracing.ts`
+- [x] Replace `import { Resource } from "@opentelemetry/resources"` with `import { resourceFromAttributes } from "@opentelemetry/resources"`
+- [x] Replace `new Resource({ "service.name": serviceName })` with `resourceFromAttributes({ "service.name": serviceName })`
+- [x] Remove sequential `provider.addSpanProcessor()` calls
+- [x] Pass `spanProcessors` array directly to `WebTracerProvider` constructor  
+  **Production**: `[new BatchSpanProcessor(collector)]`  
+  **Development**: `[new SimpleSpanProcessor(new ConsoleSpanExporter()), new SimpleSpanProcessor(collector)]`
 
-### Step 4: Phase 3 - Convert Shared Components (Batches)
-- [x] Batch 3A: Convert ApplicationContainer components to `.tsx` with props interfaces
-- [x] Batch 3B: Convert Authentication components to `.tsx` with props interfaces
-- [x] Batch 3C: Convert Search components to `.tsx` with typed props and JSON typings
-- [x] Batch 3D: Convert Display components (TripCard, Flight, Cart, Breakdown) to `.tsx`
-- [x] Batch 3E: Convert SearchResults components to `.tsx` with typed props
-- [x] Add `data-testid` attributes to interactive elements touched during conversion (buttons, inputs, links)
+**Reasoning**: In `@opentelemetry/resources` 2.x, `Resource` is now an interface (type only); to create a resource instance call `resourceFromAttributes()`. In `@opentelemetry/sdk-trace-web` 2.x (via `sdk-trace-base`), `addSpanProcessor()` was removed from `BasicTracerProvider`/`WebTracerProvider`; span processors must be supplied via the `spanProcessors: SpanProcessor[]` field in `TracerConfig`.
 
-### Step 5: Phase 4 - Convert Page Components
-- [x] Convert `Home.js` to `Home.tsx` and type page props/state
-- [x] Convert `SearchFlight.js` to `SearchFlight.tsx` and type route/hooks
-- [x] Convert `Checkout.js` to `Checkout.tsx` and type props/state
+### Step 3: OpenTelemetry 2.x API Migration — `src/services/CustomTracing.ts`
+- [x] Apply the same `Resource` → `resourceFromAttributes` change as in Step 2
+- [x] Apply the same `spanProcessors` constructor pattern as in Step 2
 
-### Step 6: Phase 5 - Convert App Root
-- [x] Convert `App.js` to `App.tsx` and type routing/lazy-load boundaries
-- [x] Update any remaining imports to `.ts`/`.tsx` resolution if needed
+### Step 4: Mantine 8 Date Type Fixes — `src/components/Search/Search.tsx`
+- [x] Fix the `DatesRangeValue<string>` cast in the range `DatePickerInput` `onChange` handler:  
+  `input as [Date, Date]` → `(input as unknown) as [Date, Date]`
+- [x] Fix the single-date `DatePickerInput` `onChange` handler:  
+  `input as Date` → `(input as unknown) as Date`
 
-### Step 7: Third-Party Type Handling
-- [x] Add `src/types/*.d.ts` for any libraries lacking types (only if required)
-- [x] Document all pragmatic `any` escapes with inline comments
+**Reasoning**: Mantine 8 widened the `DatePickerInput` `onChange` callback type to `DatesRangeValue<string>` (which can hold `string | null` in its tuple positions), making a direct `as [Date, Date]` cast a TypeScript error because the types don't sufficiently overlap. The double-cast through `unknown` expresses deliberate intent and resolves the type error.
 
-### Step 8: Per-Phase Validation Gates
-- [x] After each phase: run `npm run type-check` and record timing
-- [x] After each phase: run `npm run build` and ensure success
-- [x] After Phase 2+: run `npm start` and confirm no console errors
-- [x] Perform manual validation per NFR Design (critical paths + visual checks)
-
-### Step 9: Documentation Updates (Minimal)
-- [x] Update `aidlc-docs/construction/unit-2/code/code-generation-summary.md` with conversion summary
-- [x] Record type-check performance table and validation results summary
-
-### Step 10: Plan Tracking
-- [x] Mark each step checkbox immediately after completion
-- [x] Ensure no duplicate files created (in-place modifications only)
+### Step 5: Validation Gate — type-check
+- [x] Run `npm run type-check` and confirm 0 errors
 
 ---
 
 ## Story Traceability
 - User Stories: Not applicable (skipped in workflow)
-- NFR Requirements: All steps traceable to Unit 2 NFR Requirements and NFR Design artifacts
+- All steps traceable to Unit 2 scope in `aidlc-docs/inception/application-design/unit-of-work.md`
 
 ---
 
 ## Plan Notes
-- This plan is the single source of truth for Unit 2 Code Generation.
-- All file modifications must occur in-place (no duplicate files).
-- Code generation must preserve UI/UX and runtime behavior.
-- Strict TypeScript mode must remain enabled throughout.
-
----
-
-**Total Steps**: 10  
-**Document Version**: 1.0  
-**Created**: 2026-03-09
+- All file modifications are in-place (no duplicate files created).
+- No new components, services, or files are created in this unit.
+- `src/index.tsx`, `src/App.test.tsx`, and `src/setupTests.ts` require no changes for type-check to pass (already clean or handled in Unit 1).
+- `process.env.NODE_ENV` usage in `Tracing.ts` and `CustomTracing.ts` is intentionally preserved — Vite replaces it at bundle time, and TypeScript resolves it via `@types/node`.
+- Unit 3 owns all remaining Mantine 8 API breaking changes (component props, AppShell, theme structure, etc.).

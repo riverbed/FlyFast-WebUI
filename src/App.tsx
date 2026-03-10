@@ -1,6 +1,6 @@
 import { LoadingOverlay } from "@mantine/core";
 import { Suspense, lazy } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router";
 import "./App.css";
 
 import ApplicationContainer from "./components/ApplicationContainer/ApplicationContainer";

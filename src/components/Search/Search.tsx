@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 import {
   Autocomplete,
   Group,
@@ -10,6 +10,7 @@ import {
   type AutocompleteProps,
 } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
+import dayjs from "dayjs";
 import { BsCalendarWeek, BsSearch } from "react-icons/bs";
 import {
   MdAirplanemodeActive,
@@ -48,9 +49,9 @@ const Search = ({ fromData, toData, seatData, tripDateData }: SearchProps) => {
   const [to, setTo] = useState("");
   const [trip, setTrip] = useState("Round Trip");
   const [seat, setSeat] = useState("Economy");
-  const [tripDate, setTripDate] = useState<[Date, Date]>([
-    new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
-    new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000),
+  const [tripDate, setTripDate] = useState<[string, string]>([
+    dayjs().add(7, "day").format("YYYY-MM-DD"),
+    dayjs().add(14, "day").format("YYYY-MM-DD")
   ]);
 
   const LIMITSET = 5;
@@ -67,15 +68,18 @@ const Search = ({ fromData, toData, seatData, tripDateData }: SearchProps) => {
     setTrip(tripDateData?.[1] ? "Round Trip" : "One Way");
 
     if (tripDateData?.[0]) {
-      const departure = new Date(tripDateData[0]);
+      const departure = dayjs(tripDateData[0]);
       const returnCandidate = tripDateData[1]
-        ? new Date(tripDateData[1])
-        : new Date(departure.getTime() + 7 * 24 * 60 * 60 * 1000);
-      setTripDate([departure, returnCandidate]);
+        ? dayjs(tripDateData[1])
+        : departure.add(7, "day");
+      setTripDate([
+        departure.format("YYYY-MM-DD"),
+        returnCandidate.format("YYYY-MM-DD"),
+      ]);
     } else {
       setTripDate([
-        new Date(new Date().getTime() + 7 * 24 * 60 * 60 * 1000),
-        new Date(new Date().getTime() + 14 * 24 * 60 * 60 * 1000),
+        dayjs().add(7, "day").format("YYYY-MM-DD"),
+        dayjs().add(14, "day").format("YYYY-MM-DD"),
       ]);
     }
   }, [fromData, toData, seatData, tripDateData]);
@@ -114,19 +118,19 @@ const Search = ({ fromData, toData, seatData, tripDateData }: SearchProps) => {
 
     const endpoint = "/searchflight";
     const location = `?from=${from}&to=${to}`;
-    const formattedDepartureDate =
-      tripDate[0].getMonth() + 1 + "-" + tripDate[0].getDate() + "-" + tripDate[0].getFullYear();
-    const departureDate = `&departure=${formattedDepartureDate}`;
-    let returnDate = "";
+    const departureDate = dayjs(tripDate[0]);
+    const formattedDepartureDate = departureDate.format("MM-DD-YYYY");
+    const departureDateParam = `&departure=${formattedDepartureDate}`;
+    let returnDateParam = "";
     const seating = `&seat=${seat}`;
 
     if (trip === "Round Trip") {
-      const formattedReturnDate =
-        tripDate[1].getMonth() + 1 + "-" + tripDate[1].getDate() + "-" + tripDate[1].getFullYear();
-      returnDate = `&return=${formattedReturnDate}`;
+      const returnDate = dayjs(tripDate[1]);
+      const formattedReturnDate = returnDate.format("MM-DD-YYYY");
+      returnDateParam = `&return=${formattedReturnDate}`;
     }
 
-    navigate(endpoint + location + departureDate + returnDate + seating);
+    navigate(endpoint + location + departureDateParam + returnDateParam + seating);
     setLoading(false);
   }
 
@@ -205,8 +209,7 @@ const Search = ({ fromData, toData, seatData, tripDateData }: SearchProps) => {
                 leftSectionPointerEvents="none"
                 firstDayOfWeek={0}
                 value={tripDate}
-                // Mantine DatePickerInput range typing is broad; we normalize to Date tuple.
-                onChange={(input) => setTripDate(input as [Date, Date])}
+                onChange={(input) => setTripDate(input as [string, string])}
                 data-testid="search-trip-range-input"
               />
             )}
@@ -219,13 +222,7 @@ const Search = ({ fromData, toData, seatData, tripDateData }: SearchProps) => {
                 leftSectionPointerEvents="none"
                 firstDayOfWeek={0}
                 value={tripDate[0]}
-                onChange={(input) => {
-                  const oneWayDate = input as Date;
-                  setTripDate([
-                    oneWayDate,
-                    new Date(oneWayDate.getTime() + 7 * 24 * 60 * 60 * 1000),
-                  ]);
-                }}
+                onChange={(input) => setTripDate([input as string, dayjs(input as string).add(7, "day").format("YYYY-MM-DD") as string])}
                 data-testid="search-trip-date-input"
               />
             )}
