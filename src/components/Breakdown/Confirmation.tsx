@@ -1,0 +1,32 @@
+/**
+ * Purpose: This file (Confirmation.tsx) supports the Breakdown area of the FlyFast booking workflow.
+ */
+import { useContext } from "react";
+import { Stack, Text, Title, Grid } from "@mantine/core";
+import { CartContext } from "@/services/Context";
+
+import FlightDetails from "@/components/Cart/FlightDetails";
+
+const Confirmation = () => {
+  const cartContext = useContext(CartContext);
+  if (!cartContext) {
+    return null;
+  }
+
+  const { pastCart } = cartContext;
+
+  return (
+    <Grid justify="center" align="center">
+      <Grid.Col span={10}>
+        <Stack align="center" gap={5}>
+          <Title order={1}>Thank You For Choosing FlyFast!</Title>
+          <Text size="lg">Your order has been placed. An email of your order has been sent to you.</Text>
+          <Text size="lg">Please allow a few minutes for your email to arrive.</Text>
+        </Stack>
+        <FlightDetails flights={pastCart} cart={false} />
+      </Grid.Col>
+    </Grid>
+  );
+};
+
+export default Confirmation;
