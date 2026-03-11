@@ -22,7 +22,7 @@ To view the full source code and to run the whole application through Docker, he
 
 1. [Git](https://git-scm.com/) (Optional)
 2. A Docker host, for example [Docker Desktop](https://www.docker.com/products/docker-desktop) (Optional)
-3. [Node.js 20+](https://nodejs.org/en/) (Required)
+3. [Node.js 22.14.0](https://nodejs.org/en/) (Required)
 4. [FlightSearch](https://github.com/Aternity/FlyFast-FlightSearch) (Required only for backend calls)
 
 ## Getting Started

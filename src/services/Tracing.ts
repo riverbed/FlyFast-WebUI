@@ -15,8 +15,7 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import {
   ConsoleSpanExporter,
   SimpleSpanProcessor,
-  BatchSpanProcessor,
-  Span,
+  BatchSpanProcessor
 } from "@opentelemetry/sdk-trace-base";
 import { ZoneContextManager } from "@opentelemetry/context-zone";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
@@ -24,7 +23,7 @@ import { DocumentLoadInstrumentation } from "@opentelemetry/instrumentation-docu
 import { FetchInstrumentation } from "@opentelemetry/instrumentation-fetch";
 import { XMLHttpRequestInstrumentation } from "@opentelemetry/instrumentation-xml-http-request";
 import { UserInteractionInstrumentation } from "@opentelemetry/instrumentation-user-interaction";
-import type { Tracer } from "@opentelemetry/api";
+import type { Tracer, Span } from "@opentelemetry/api";
 
 // ============================================================================
 // UNIT 1 CONSTANTS & CONFIGURATION
