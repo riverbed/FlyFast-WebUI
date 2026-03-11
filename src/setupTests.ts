@@ -17,3 +17,15 @@ Object.defineProperty(window, "matchMedia", {
 		dispatchEvent: () => false,
 	}),
 });
+
+// Mantine components rely on ResizeObserver in several controls.
+class ResizeObserverMock {
+	observe() {}
+	unobserve() {}
+	disconnect() {}
+}
+
+Object.defineProperty(window, "ResizeObserver", {
+	writable: true,
+	value: ResizeObserverMock,
+});

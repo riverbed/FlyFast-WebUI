@@ -21,7 +21,7 @@ interface CartProviderProps {
   children: ReactNode;
 }
 
-const getStorageConfig = (key: string) => ({
+export const getStorageConfig = (key: string) => ({
   key,
   serialize: jsonSerialize,
   deserialize: (value: string | undefined) =>

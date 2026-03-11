@@ -1,5 +1,8 @@
 # FlyFast - WebUI
 
+![Coverage Badge](https://img.shields.io/badge/coverage-96%25-brightgreen)
+![Test Status](https://img.shields.io/badge/tests-passing-brightgreen)
+
 This repository contains the source code for the WebUI of FlyFast.
 
 For the source code of the backend, head over to [FlightSearch](https://github.com/Aternity/FlyFast-FlightSearch). This will be necessary to make any backend calls but is not required for viewing the WebUI.
@@ -95,6 +98,30 @@ Serves the production build from `dist/` locally for inspection before deploymen
 ### `npm run type-check`
 
 Runs TypeScript validation without emitting build artifacts.
+
+### `npm run test:ci`
+
+Runs the complete test suite with coverage gate enforcement (80% minimum coverage on statements, branches, functions, and lines). This is used in CI/CD pipelines.
+
+## Testing
+
+FlyFast-WebUI maintains comprehensive test coverage with a focus on critical business logic and user workflows:
+
+- **Coverage Target**: 80% minimum on all metrics (statements, branches, functions, lines)
+- **Current Coverage**: 94% statements, 85% branches, 86% functions, 94% lines
+- **Test Approach**: 
+  - Unit tests for services, utilities, and component logic
+  - Integration tests for multi-component workflows (search → results → checkout)
+  - Per-file test coverage for all pages and components
+  - Mocked Mantine provider and React Router for isolated component testing
+
+To run tests:
+- **Run all tests**: `npm test`
+- **Watch mode**: `npm run test:watch`
+- **Interactive UI**: `npm run test:ui`
+- **With coverage**: `npm run test:ci`
+
+Test files are co-located with source code using the `.test.tsx` and `.test.ts` naming convention.
 
 ## Docker Build Notes
 

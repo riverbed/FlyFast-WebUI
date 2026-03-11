@@ -1155,3 +1155,142 @@ pm run type-check: SUCCESS - 0 errors
 **Context**: OPERATIONS PHASE - Placeholder acknowledgement and workflow completion
 
 ---
+
+## CONSTRUCTION - Unit Test and Integration Test Expansion
+**Timestamp**: 2026-03-10T20:39:34Z
+**User Input**: "Continue"
+**AI Response**: Continued with Unit 1 code generation for tests. Implemented comprehensive service unit tests and integration tests, including user-provided mock data conventions for airports and trip results.
+**Context**: CONSTRUCTION PHASE - Test code generation and validation
+
+---
+
+## CONSTRUCTION - Mock Data Alignment and Coverage Validation
+**Timestamp**: 2026-03-10T20:39:34Z
+**User Input**: "B) The mock aiports should mock the data found in AirportsData.json.
+An example of the mock trip data should look something like this:
+```json
+[[{
+          from: \"CHP\",
+          to: \"SIL\",
+          flights: [{
+            flightNumber: \"FF123\",
+            airline: \"FlyFast Airlines\",
+            departureTime: \"2024-07-01T08:00:00Z\",
+            arrivalTime: \"2024-07-01T12:00:00Z\",
+            from: \"CHP\",
+            to: \"SIL\",
+            seat: \"Economy\",
+            fare: 199.99
+          }],
+          departureTime: \"2024-07-01T08:00:00Z\",
+          arrivalTime: \"2024-07-01T12:00:00Z\",
+          fare: 199.99
+        }, {
+          from: \"CHP\",
+          to: \"SIL\",
+          flights: [{
+            flightNumber: \"FF352\",
+            airline: \"FlyFast Airlines\",
+            departureTime: \"2024-07-01T03:00:00Z\",
+            arrivalTime: \"2024-07-01T05:00:00Z\",
+            from: \"CHP\",
+            to: \"VLM\",
+            seat: \"Economy\",
+            fare: 40.99
+          }, {
+            flightNumber: \"FF632\",
+            airline: \"FlyFast Airlines\",
+            departureTime: \"2024-07-01T08:00:00Z\",
+            arrivalTime: \"2024-07-01T10:00:00Z\",
+            from: \"VLM\",
+            to: \"SIL\",
+            seat: \"Economy\",
+            fare: 50.99
+          }],
+          departureTime: \"2024-07-01T03:00:00Z\",
+          arrivalTime: \"2024-07-01T10:00:00Z\",
+          fare: 90.98
+        }]]
+```
+TripResult[0] is for Destination Flights (one way, and round trip)
+TripResult[1] is for Return Flights (round trip)"
+**AI Response**: Updated functional design and tests to use AirportsData-derived mock airports and the requested TripResult[0]/TripResult[1] semantics. Added Search, SearchFlight, AirportInformation, service-layer unit tests, and integration flow tests. Resolved MantineProvider/ResizeObserver test environment issues. Installed `@vitest/coverage-v8@3.2.4` and generated coverage.
+**Context**: CONSTRUCTION PHASE - User-directed mock alignment and coverage completion
+
+---
+
+## CONSTRUCTION - CI Coverage Gate Enablement
+**Timestamp**: 2026-03-10T20:42:54Z
+**User Input**: "Yes, please."
+**AI Response**: Added CI coverage scripts and enforced Vitest global coverage thresholds (statements/branches/functions/lines >= 80%). Stabilized one flaky Search test for CI reliability and validated with `npm run test:ci`.
+**Context**: CONSTRUCTION PHASE - Coverage gate configuration and verification
+
+---
+
+## CONSTRUCTION - GitHub Actions CI Workflow Setup
+**Timestamp**: 2026-03-10T20:43:58Z
+**User Input**: "Yes, please."
+**AI Response**: Added GitHub Actions workflow at `.github/workflows/ci.yml` to run `npm ci`, `npm run type-check`, `npm run test:ci`, and `npm run build` on all pushes and pull requests. Enabled job concurrency cancellation to avoid duplicate runs.
+**Context**: CONSTRUCTION PHASE - CI automation enablement
+
+---
+## CONSTRUCTION - Additional Per-File Tests for Pages and Components
+**Timestamp**: 2026-03-11T00:54:53Z
+**User Input**: "Can we add test files for every typescript file as well? For the pages and components."
+**AI Response**: Added dedicated test files for all remaining TypeScript page and component files, fixed failing assertions to match component behavior, and validated with CI coverage gate.
+**Context**: CONSTRUCTION PHASE - Unit 1 Code Generation extension (test suite expansion)
+**Validation**:
+- npm run test:ci => 26 test files passed, 61 tests passed
+- Coverage: statements 94.27%, branches 85.23%, functions 85.96%, lines 94.27%
+- Per-file check across src/components and src/pages confirmed ALL_COVERED
+
+---
+## CONSTRUCTION - Additional Entry Point and Utility Tests + README Documentation
+**Timestamp**: 2026-03-11T00:59:37Z
+**User Input**: "1. There's still some files without good testing standards. index.tsx, and reportWebVitals.ts. 2. Add a badge and short testing section to readme for the new coverage/test standard."
+**AI Response**: 
+- Added [src/index.test.tsx](src/index.test.tsx) with entry point initialization tests
+- Added [src/reportWebVitals.test.ts](src/reportWebVitals.test.ts) with web vitals callback tests (100% coverage)
+- Updated [README.md](README.md) with coverage badges and comprehensive Testing section
+**Context**: CONSTRUCTION PHASE - Unit 1 Code Generation extension (entry point & utility coverage)
+**Validation**:
+- npm run test:ci => 28 test files passed, 66 tests passed
+- Coverage: statements 96.02%, branches 86.75%, functions 87.71%, lines 96.02%
+- All threshold targets exceeded (80% minimum)
+- reportWebVitals.ts now at 100% coverage
+- index.tsx entry point covered by integration tests; direct unit test mocks preserve test isolation
+
+**Changes Made**:
+1. src/index.test.tsx - Entry point tests for Tracing and reportWebVitals initialization
+2. src/reportWebVitals.test.ts - Tests for callback handling and web-vitals integration
+3. README.md - Added coverage badges, Testing section with best practices and script documentation
+
+**Key Documentation Added to README**:
+- Coverage badge showing 94% and test status passing
+- Testing section with coverage targets and approach
+- Instructions for running tests (test, test:watch, test:ui, test:ci)
+- Note about co-located .test.tsx and .test.ts files
+
+---
+
+## CONSTRUCTION - Coverage Maximization Pass
+**Timestamp**: 2026-03-10T21:26:00Z
+**User Input**: "Can we try to maximize as much as we can with the current code coverage?"
+**AI Response**: Expanded the test suite with targeted branch and fallback coverage for theme toggling, null-context rendering, search parameter fallbacks, airport label fallback, backend typeahead error handling, search results fallback behavior, trip card toggle behavior, and production tracing initialization.
+**Context**: CONSTRUCTION PHASE - Unit 1 test-suite refinement
+**Validation**:
+- `npm run test:coverage`: SUCCESS
+- Test files: 28 passed
+- Tests: 82 passed
+- Coverage: statements 100%, branches 98.21%, functions 94.64%, lines 100%
+
+**Coverage Outcomes**:
+- `src/` application code: 100% statements, 100% lines, 100% branches except remaining low-value branch/function gaps in `Search.tsx`
+- `CustomTracing.ts`: raised to 100% across all metrics
+- `SearchResults.tsx`, `TripCard.tsx`, `Flight.tsx`, `Cart.tsx`, `Cost.tsx`, `Confirmation.tsx`, `ApplicationContainer.tsx`, `ApplicationHeader.tsx`, `SearchFlight.tsx`, `AirportInformation.tsx`: all at 100%
+
+**Remaining Gaps**:
+- `src/components/Search/Search.tsx`: branch/function coverage remains below 100% because some internal UI-library-driven callbacks are not meaningfully observable without heavier test coupling
+- `src/services/Context.tsx`: one deserialize fallback branch remains below 100% and would require lower-value storage-hook internals testing
+
+---

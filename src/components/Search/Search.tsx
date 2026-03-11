@@ -45,6 +45,14 @@ type AirportItemInput = Omit<AirportItem, "label"> & { label?: string };
 
 const TYPE_AHEAD_LIMIT = 5;
 
+export const getAirportValue = (item: { value?: string; code?: string | number }) =>
+  item.value ?? String(item.code ?? "");
+
+export const getHydratedTripType = (tripDateData?: Array<string | null>) =>
+  tripDateData?.[1] ? "Round Trip" : "One Way";
+
+export const getHydratedText = (value?: string | null) => value ?? "";
+
 const getDefaultTripDateRange = (): [string, string] => [
   dayjs().add(7, "day").format("YYYY-MM-DD"),
   dayjs().add(14, "day").format("YYYY-MM-DD"),
@@ -68,10 +76,10 @@ const Search = ({ fromData, toData, seatData, tripDateData }: SearchProps) => {
 
   useEffect(() => {
     // Rehydrates the form when users return from a routed search URL.
-    setFrom(fromData ?? "");
-    setTo(toData ?? "");
+    setFrom(getHydratedText(fromData));
+    setTo(getHydratedText(toData));
     setSeat(seatData ?? "Economy");
-    setTrip(tripDateData?.[1] ? "Round Trip" : "One Way");
+    setTrip(getHydratedTripType(tripDateData));
 
     if (tripDateData?.[0]) {
       const departure = dayjs(tripDateData[0]);
@@ -91,7 +99,10 @@ const Search = ({ fromData, toData, seatData, tripDateData }: SearchProps) => {
     airportTypeAhead(searchText, TYPE_AHEAD_LIMIT)
       .then((result) => {
         setAirportData(
-          result.map((item) => ({ ...item, label: item.value }))
+          result.map((item) => {
+            const value = getAirportValue(item);
+            return { ...item, value, label: value };
+          })
         );
       })
       .catch((error) => console.error(error));
@@ -110,7 +121,10 @@ const Search = ({ fromData, toData, seatData, tripDateData }: SearchProps) => {
   }, [to, useBackend]);
 
   const airportOptions = (useBackend ? airportData : (airports as AirportItemInput[])).map(
-    (item) => ({ ...item, label: item.value })
+    (item) => {
+      const value = getAirportValue(item);
+      return { ...item, value, label: value };
+    }
   );
 
   // Builds search query params from form state and routes to the results page.
