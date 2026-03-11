@@ -1,3 +1,6 @@
+/**
+ * Purpose: This file (Search.tsx) supports the Search area of the FlyFast booking workflow.
+ */
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import {
@@ -19,18 +22,17 @@ import {
   MdFlightTakeoff,
 } from "react-icons/md";
 
-import airports from "./AirportsData.json";
-import seatTypes from "./SeatData.json";
-import tripTypes from "./TripData.json";
+import airports from "@/components/Search/AirportsData.json";
+import seatTypes from "@/components/Search/SeatData.json";
+import tripTypes from "@/components/Search/TripData.json";
 
 import {
   airportFilter,
   AirportInformation,
   airportBackendFilter,
   type AirportItem,
-} from "./AirportInformation";
-
-import { airportTypeAhead } from "../../services/Flight";
+} from "@/components/Search/AirportInformation";
+import { airportTypeAhead } from "@/services/Flight";
 
 interface SearchProps {
   fromData?: string;
@@ -41,6 +43,13 @@ interface SearchProps {
 
 type AirportItemInput = Omit<AirportItem, "label"> & { label?: string };
 
+const TYPE_AHEAD_LIMIT = 5;
+
+const getDefaultTripDateRange = (): [string, string] => [
+  dayjs().add(7, "day").format("YYYY-MM-DD"),
+  dayjs().add(14, "day").format("YYYY-MM-DD"),
+];
+
 const Search = ({ fromData, toData, seatData, tripDateData }: SearchProps) => {
   const [loading, setLoading] = useState(false);
   const [useBackend, setUseBackend] = useState(false);
@@ -49,12 +58,8 @@ const Search = ({ fromData, toData, seatData, tripDateData }: SearchProps) => {
   const [to, setTo] = useState("");
   const [trip, setTrip] = useState("Round Trip");
   const [seat, setSeat] = useState("Economy");
-  const [tripDate, setTripDate] = useState<[string, string]>([
-    dayjs().add(7, "day").format("YYYY-MM-DD"),
-    dayjs().add(14, "day").format("YYYY-MM-DD")
-  ]);
+  const [tripDate, setTripDate] = useState<[string, string]>(getDefaultTripDateRange());
 
-  const LIMITSET = 5;
   const navigate = useNavigate();
 
   const renderAirportOption: AutocompleteProps["renderOption"] = ({ option }) => (
@@ -62,6 +67,7 @@ const Search = ({ fromData, toData, seatData, tripDateData }: SearchProps) => {
   );
 
   useEffect(() => {
+    // Rehydrates the form when users return from a routed search URL.
     setFrom(fromData ?? "");
     setTo(toData ?? "");
     setSeat(seatData ?? "Economy");
@@ -77,34 +83,29 @@ const Search = ({ fromData, toData, seatData, tripDateData }: SearchProps) => {
         returnCandidate.format("YYYY-MM-DD"),
       ]);
     } else {
-      setTripDate([
-        dayjs().add(7, "day").format("YYYY-MM-DD"),
-        dayjs().add(14, "day").format("YYYY-MM-DD"),
-      ]);
+      setTripDate(getDefaultTripDateRange());
     }
   }, [fromData, toData, seatData, tripDateData]);
 
+  const loadAirportTypeAhead = (searchText: string) => {
+    airportTypeAhead(searchText, TYPE_AHEAD_LIMIT)
+      .then((result) => {
+        setAirportData(
+          result.map((item) => ({ ...item, label: item.value }))
+        );
+      })
+      .catch((error) => console.error(error));
+  };
+
   useEffect(() => {
     if (useBackend) {
-      airportTypeAhead(from, LIMITSET)
-        .then((result) => {
-          setAirportData(
-            result.map((item) => ({ ...item, label: item.value }))
-          );
-        })
-        .catch((error) => console.error(error));
+      loadAirportTypeAhead(from);
     }
   }, [from, useBackend]);
 
   useEffect(() => {
     if (useBackend) {
-      airportTypeAhead(to, LIMITSET)
-        .then((result) => {
-          setAirportData(
-            result.map((item) => ({ ...item, label: item.value }))
-          );
-        })
-        .catch((error) => console.error(error));
+      loadAirportTypeAhead(to);
     }
   }, [to, useBackend]);
 
@@ -112,6 +113,7 @@ const Search = ({ fromData, toData, seatData, tripDateData }: SearchProps) => {
     (item) => ({ ...item, label: item.value })
   );
 
+  // Builds search query params from form state and routes to the results page.
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);

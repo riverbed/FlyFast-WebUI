@@ -1,13 +1,17 @@
+/**
+ * Purpose: This file (App.tsx) supports the src area of the FlyFast booking workflow.
+ */
 import { LoadingOverlay } from "@mantine/core";
 import { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router";
 import "./App.css";
 
-import ApplicationContainer from "./components/ApplicationContainer/ApplicationContainer";
+import ApplicationContainer from "@/components/ApplicationContainer/ApplicationContainer";
 
-const Home = lazy(() => import("./pages/Home/Home"));
-const SearchFlight = lazy(() => import("./pages/SearchFlight/SearchFlight"));
-const Checkout = lazy(() => import("./pages/Checkout/Checkout"));
+// Route components are lazy-loaded to keep the initial bundle small.
+const Home = lazy(() => import("@/pages/Home/Home"));
+const SearchFlight = lazy(() => import("@/pages/SearchFlight/SearchFlight"));
+const Checkout = lazy(() => import("@/pages/Checkout/Checkout"));
 
 const App = () => {
   return (

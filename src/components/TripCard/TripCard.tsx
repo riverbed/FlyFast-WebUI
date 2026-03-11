@@ -1,3 +1,6 @@
+/**
+ * Purpose: This file (TripCard.tsx) supports the TripCard area of the FlyFast booking workflow.
+ */
 import { useState, useEffect, useContext } from "react";
 import {
   Card,
@@ -12,10 +15,10 @@ import {
 import { MdOutlineArrowDropDown, MdOutlineArrowDropUp } from "react-icons/md";
 import { BsFillCartPlusFill } from "react-icons/bs";
 
-import FlightDetails from "./FlightDetails";
-import { CartContext } from "../../services/Context";
-import { timeConversion, timeDifference } from "../../services/Functions";
-import type { FlightSegment } from "../../services/Flight";
+import FlightDetails from "@/components/TripCard/FlightDetails";
+import { CartContext } from "@/services/Context";
+import { timeConversion, timeDifference } from "@/services/Functions";
+import type { FlightSegment } from "@/services/Flight";
 
 interface TripCardProps {
   from: string;

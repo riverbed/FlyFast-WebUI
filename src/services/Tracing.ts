@@ -1,3 +1,6 @@
+/**
+ * Purpose: This file (Tracing.ts) supports the services area of the FlyFast booking workflow.
+ */
 import { resourceFromAttributes } from "@opentelemetry/resources";
 import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";

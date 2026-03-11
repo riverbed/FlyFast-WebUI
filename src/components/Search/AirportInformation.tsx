@@ -1,3 +1,6 @@
+/**
+ * Purpose: This file (AirportInformation.tsx) supports the Search area of the FlyFast booking workflow.
+ */
 import { forwardRef } from "react";
 import { Group, Text, type ComboboxItem, type OptionsFilter } from "@mantine/core";
 

@@ -1,11 +1,30 @@
+/**
+ * Purpose: This file (SearchFlight.tsx) supports the SearchFlight area of the FlyFast booking workflow.
+ */
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router";
 
 import { Grid, LoadingOverlay } from "@mantine/core";
 
-import Search from "../../components/Search/Search";
-import SearchResults from "../../components/SearchResults/SearchResults";
-import { searchFlight, type TripResult } from "../../services/Flight";
+import Search from "@/components/Search/Search";
+import SearchResults from "@/components/SearchResults/SearchResults";
+import { searchFlight, type TripResult } from "@/services/Flight";
+
+interface SearchCriteria {
+  from: string | null;
+  to: string | null;
+  departureDate: string | null;
+  returnDate: string | null;
+  seat: string | null;
+}
+
+const getCriteriaFromParams = (params: URLSearchParams): SearchCriteria => ({
+  from: params.get("from"),
+  to: params.get("to"),
+  departureDate: params.get("departure"),
+  returnDate: params.get("return"),
+  seat: params.get("seat"),
+});
 
 const SearchFlight = () => {
   const [searchParams] = useSearchParams();
@@ -13,34 +32,27 @@ const SearchFlight = () => {
   const [result, setResult] = useState<TripResult[][]>([[]]);
 
   useEffect(() => {
-    async function retrieveFlight(
-      from: string | null,
-      to: string | null,
-      departureDate: string | null,
-      returnDate: string | null,
-      seat: string | null
-    ) {
+    // Fetches search results whenever query parameters change.
+    async function retrieveFlight(criteria: SearchCriteria) {
       setOverlayShow(true);
-      await searchFlight(from, to, departureDate, returnDate, seat)
-        .then((response) => {
-          try {
-            setResult(JSON.parse(JSON.stringify(response)) as TripResult[][]);
-          } catch (error) {
-            console.error(error);
-            setResult([[]]);
-          }
-        })
-        .catch((error) => console.error(error));
+      try {
+        const response = await searchFlight(
+          criteria.from,
+          criteria.to,
+          criteria.departureDate,
+          criteria.returnDate,
+          criteria.seat
+        );
+        setResult(response);
+      } catch (error) {
+        console.error(error);
+        setResult([[]]);
+      }
+
       setOverlayShow(false);
     }
 
-    retrieveFlight(
-      searchParams.get("from"),
-      searchParams.get("to"),
-      searchParams.get("departure"),
-      searchParams.get("return"),
-      searchParams.get("seat")
-    );
+    retrieveFlight(getCriteriaFromParams(searchParams));
   }, [searchParams]);
 
   return (

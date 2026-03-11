@@ -1,6 +1,9 @@
+/**
+ * Purpose: This file (Home.tsx) supports the Home area of the FlyFast booking workflow.
+ */
 import { Grid } from "@mantine/core";
 
-import Search from "../../components/Search/Search";
+import Search from "@/components/Search/Search";
 
 const Home = () => {
   return (

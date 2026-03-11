@@ -1,4 +1,8 @@
+/**
+ * Purpose: Vite and Vitest runtime configuration for local development, proxying, build output, and tests.
+ */
 import react from "@vitejs/plugin-react";
+import path from "node:path";
 import { loadEnv } from "vite";
 import { defineConfig } from "vitest/config";
 
@@ -9,6 +13,11 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "src"),
+      },
+    },
     build: {
       outDir: "dist",
     },

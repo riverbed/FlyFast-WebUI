@@ -1,12 +1,15 @@
+/**
+ * Purpose: This file (SearchResults.tsx) supports the SearchResults area of the FlyFast booking workflow.
+ */
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { Stepper, Button, Center } from "@mantine/core";
 import { MdOutlineAirplaneTicket, MdHome } from "react-icons/md";
 import { BsFillCartFill } from "react-icons/bs";
 
-import Results from "./Results";
-import Cart from "../Cart/Cart";
-import type { TripResult } from "../../services/Flight";
+import Results from "@/components/SearchResults/Results";
+import Cart from "@/components/Cart/Cart";
+import type { TripResult } from "@/services/Flight";
 
 interface SearchResultsProps {
   fromData: string;

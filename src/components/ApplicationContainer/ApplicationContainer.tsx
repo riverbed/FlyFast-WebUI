@@ -1,3 +1,6 @@
+/**
+ * Purpose: This file (ApplicationContainer.tsx) supports the ApplicationContainer area of the FlyFast booking workflow.
+ */
 import {
   AppShell,
   MantineProvider,
@@ -8,8 +11,8 @@ import {
 import { useHotkeys } from "@mantine/hooks";
 import type { ReactNode } from "react";
 
-import ApplicationHeader from "./ApplicationHeader";
-import { CartProvider } from "../../services/Context";
+import ApplicationHeader from "@/components/ApplicationContainer/ApplicationHeader";
+import { CartProvider } from "@/services/Context";
 
 interface ApplicationContainerProps {
   children: ReactNode;

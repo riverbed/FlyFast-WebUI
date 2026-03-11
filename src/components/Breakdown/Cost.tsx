@@ -1,11 +1,18 @@
+/**
+ * Purpose: This file (Cost.tsx) supports the Breakdown area of the FlyFast booking workflow.
+ */
 import { useContext } from "react";
 import { Button, Card, Stack, Group, Title, Text, Divider } from "@mantine/core";
 
-import { CartContext } from "../../services/Context";
+import { CartContext } from "@/services/Context";
 
 interface CostProps {
   proceedButton: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }
+
+const TAX_RATE = 0.0875;
+
+const roundCurrency = (value: number): number => Math.round(value * 100) / 100;
 
 const Cost = ({ proceedButton }: CostProps) => {
   const cartContext = useContext(CartContext);
@@ -14,8 +21,10 @@ const Cost = ({ proceedButton }: CostProps) => {
   }
 
   const { cart } = cartContext;
-  const SUBTOTAL = cart.reduce((total, flight) => total + flight.fare, 0);
-  const TAX = 0.0875;
+  // Totals are derived from cart state to avoid duplicated pricing state.
+  const subTotal = cart.reduce((total, flight) => total + flight.fare, 0);
+  const taxAmount = roundCurrency(subTotal * TAX_RATE);
+  const total = roundCurrency(subTotal + taxAmount);
 
   return (
     <Card radius="md" m="xs" withBorder>
@@ -28,11 +37,11 @@ const Cost = ({ proceedButton }: CostProps) => {
         </Group>
         <Group justify="space-between">
           <Text>Subtotal:</Text>
-          <Text>${SUBTOTAL}</Text>
+          <Text>${subTotal}</Text>
         </Group>
         <Group justify="space-between">
           <Text>Taxes, fees, and charges:</Text>
-          <Text>${Math.round(SUBTOTAL * TAX * 100) / 100}</Text>
+          <Text>${taxAmount}</Text>
         </Group>
         <Divider variant="dotted" />
         <Group justify="space-between">
@@ -40,7 +49,7 @@ const Cost = ({ proceedButton }: CostProps) => {
             Total:
           </Text>
           <Text fw={700} size="lg">
-            ${Math.round((SUBTOTAL * TAX + SUBTOTAL) * 100) / 100}
+            ${total}
           </Text>
         </Group>
         <Button

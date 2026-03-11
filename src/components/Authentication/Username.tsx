@@ -1,3 +1,6 @@
+/**
+ * Purpose: This file (Username.tsx) supports the Authentication area of the FlyFast booking workflow.
+ */
 import { useSearchParams } from "react-router";
 
 const Username = () => {

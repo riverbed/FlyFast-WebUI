@@ -1,10 +1,13 @@
+/**
+ * Purpose: This file (Flight.tsx) supports the Flight area of the FlyFast booking workflow.
+ */
 import { useContext } from "react";
 import { Grid, Group, Stack, Text, ActionIcon } from "@mantine/core";
 import { BsFillCartPlusFill, BsFillCartDashFill } from "react-icons/bs";
 
-import { timeConversion } from "../../services/Functions";
-import { CartContext } from "../../services/Context";
-import type { FlightSegment } from "../../services/Flight";
+import { timeConversion } from "@/services/Functions";
+import { CartContext } from "@/services/Context";
+import type { FlightSegment } from "@/services/Flight";
 
 interface FlightProps {
   index: number;

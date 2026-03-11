@@ -1,3 +1,6 @@
+/**
+ * Purpose: This file (CustomTracing.ts) supports the services area of the FlyFast booking workflow.
+ */
 import { context, trace, SpanKind, SpanStatusCode } from "@opentelemetry/api";
 import { resourceFromAttributes } from "@opentelemetry/resources";
 import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";

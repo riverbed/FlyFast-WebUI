@@ -1,8 +1,11 @@
+/**
+ * Purpose: This file (Confirmation.tsx) supports the Breakdown area of the FlyFast booking workflow.
+ */
 import { useContext } from "react";
 import { Stack, Text, Title, Grid } from "@mantine/core";
-import { CartContext } from "../../services/Context";
+import { CartContext } from "@/services/Context";
 
-import FlightDetails from "../Cart/FlightDetails";
+import FlightDetails from "@/components/Cart/FlightDetails";
 
 const Confirmation = () => {
   const cartContext = useContext(CartContext);

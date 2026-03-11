@@ -1,3 +1,6 @@
+/**
+ * Purpose: This file (reportWebVitals.ts) supports the src area of the FlyFast booking workflow.
+ */
 type ReportHandler = (metric: unknown) => void;
 
 const reportWebVitals = (onPerfEntry?: ReportHandler) => {

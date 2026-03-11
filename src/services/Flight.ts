@@ -1,3 +1,6 @@
+/**
+ * Purpose: This file (Flight.ts) supports the services area of the FlyFast booking workflow.
+ */
 export interface FlightSegment {
   flightNumber: string;
   airline: string;
@@ -25,6 +28,7 @@ export interface Airport {
   country: string;
 }
 
+// Requests flight options for a selected itinerary and returns grouped trip results.
 export const searchFlight = async (
   from: string | null,
   to: string | null,
@@ -32,19 +36,22 @@ export const searchFlight = async (
   returnDate: string | null,
   seatType: string | null
 ): Promise<TripResult[][]> => {
-  const endpoint = "/flightsearchapi/searchflight";
-  const location = `?from=${from}&to=${to}`;
-  const departureTime = `&departure=${departureDate}`;
-  let returnTime = "";
+  const params = new URLSearchParams({
+    from: from ?? "",
+    to: to ?? "",
+    departure: departureDate ?? "",
+    seat: seatType ?? "",
+  });
+
   if (returnDate) {
-    returnTime = `&return=${returnDate}`;
+    params.set("return", returnDate);
   }
-  const seat = `&seat=${seatType}`;
-  const URI = endpoint + location + departureTime + returnTime + seat;
-  const response = await fetch(URI);
+
+  const response = await fetch(`/flightsearchapi/searchflight?${params.toString()}`);
   return (await response.json()) as TripResult[][];
 };
 
+// Retrieves airport suggestions used by typeahead inputs.
 export const airportTypeAhead = async (
   text: string | null,
   limit?: number | null
@@ -52,13 +59,12 @@ export const airportTypeAhead = async (
   if (!text) {
     return [];
   }
-  const endpoint = "/flightsearchapi/airportypeahead";
-  const search = `?searchtxt=${text}`;
-  let limitResult = "";
+
+  const params = new URLSearchParams({ searchtxt: text });
   if (limit) {
-    limitResult = `&limit=${limit}`;
+    params.set("limit", String(limit));
   }
-  const URI = endpoint + search + limitResult;
-  const response = await fetch(URI);
+
+  const response = await fetch(`/flightsearchapi/airportypeahead?${params.toString()}`);
   return (await response.json()) as Airport[];
 };

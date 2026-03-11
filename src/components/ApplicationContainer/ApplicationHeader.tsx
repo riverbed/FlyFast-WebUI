@@ -1,9 +1,12 @@
+/**
+ * Purpose: This file (ApplicationHeader.tsx) supports the ApplicationContainer area of the FlyFast booking workflow.
+ */
 import { Link } from "react-router";
 import { ActionIcon, Group, UnstyledButton } from "@mantine/core";
 import { MdLightMode, MdDarkMode } from "react-icons/md";
 import { BsFillCartFill } from "react-icons/bs";
 
-import Username from "../../components/Authentication/Username";
+import Username from "@/components/Authentication/Username";
 
 interface ApplicationHeaderProps {
   toggleTheme: () => void;

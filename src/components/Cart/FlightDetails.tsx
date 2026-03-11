@@ -1,7 +1,10 @@
+/**
+ * Purpose: This file (FlightDetails.tsx) supports the Cart area of the FlyFast booking workflow.
+ */
 import { Card } from "@mantine/core";
 
-import Flight from "../Flight/Flight";
-import type { FlightSegment } from "../../services/Flight";
+import Flight from "@/components/Flight/Flight";
+import type { FlightSegment } from "@/services/Flight";
 
 interface FlightDetailsProps {
   flights: FlightSegment[];

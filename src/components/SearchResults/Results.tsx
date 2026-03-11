@@ -1,9 +1,12 @@
+/**
+ * Purpose: This file (Results.tsx) supports the SearchResults area of the FlyFast booking workflow.
+ */
 import { useState, useEffect } from "react";
 import { Group, Pagination } from "@mantine/core";
 
-import NoResults from "./NoResults";
-import TripCard from "../TripCard/TripCard";
-import type { TripResult } from "../../services/Flight";
+import NoResults from "@/components/SearchResults/NoResults";
+import TripCard from "@/components/TripCard/TripCard";
+import type { TripResult } from "@/services/Flight";
 
 interface ResultsProps {
   fromData: string;

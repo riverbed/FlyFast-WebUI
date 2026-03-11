@@ -1,3 +1,6 @@
+/**
+ * Purpose: This file (setupTests.ts) supports the src area of the FlyFast booking workflow.
+ */
 import "@testing-library/jest-dom/vitest";
 
 // jsdom does not implement window.matchMedia; Mantine's useMediaQuery requires it.

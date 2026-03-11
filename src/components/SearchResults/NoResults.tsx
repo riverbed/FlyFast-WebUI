@@ -1,3 +1,6 @@
+/**
+ * Purpose: This file (NoResults.tsx) supports the SearchResults area of the FlyFast booking workflow.
+ */
 import { Center } from "@mantine/core";
 
 interface NoResultsProps {

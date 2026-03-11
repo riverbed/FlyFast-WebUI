@@ -1,11 +1,14 @@
+/**
+ * Purpose: This file (Checkout.tsx) supports the Checkout area of the FlyFast booking workflow.
+ */
 import { useState, useContext } from "react";
 import { Stepper, Grid, Title } from "@mantine/core";
 
-import Cart from "../../components/Cart/Cart";
-import Cost from "../../components/Breakdown/Cost";
-import Confirmation from "../../components/Breakdown/Confirmation";
+import Cart from "@/components/Cart/Cart";
+import Cost from "@/components/Breakdown/Cost";
+import Confirmation from "@/components/Breakdown/Confirmation";
 
-import { CartContext } from "../../services/Context";
+import { CartContext } from "@/services/Context";
 
 const Checkout = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -17,6 +20,7 @@ const Checkout = () => {
 
   const { purchaseCart } = cartContext;
 
+  // Finalizes purchase and advances checkout to the confirmation step.
   const nextStep = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     purchaseCart();
