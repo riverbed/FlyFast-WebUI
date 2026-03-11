@@ -26,6 +26,10 @@ vi.mock("@mantine/hooks", async () => {
   };
 });
 
+vi.mock("react-router", () => ({
+  useLocation: () => ({ pathname: '/' }),
+}));
+
 import ApplicationContainer from "@/components/ApplicationContainer/ApplicationContainer";
 
 vi.mock("@/components/ApplicationContainer/ApplicationHeader", () => ({

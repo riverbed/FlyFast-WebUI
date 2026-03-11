@@ -1,5 +1,7 @@
 import airportsData from "@/components/Search/AirportsData.json";
 import { airportTypeAhead, searchFlight, type Airport, type TripResult } from "@/services/Flight";
+import { setCurrentRouteSpan } from "@/services/RouteTracing";
+import type { Span } from "@opentelemetry/api";
 
 interface AirportDataEntry {
   id: number;
@@ -97,15 +99,20 @@ describe("Flight service", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     vi.stubGlobal("fetch", vi.fn());
+    setCurrentRouteSpan(null);
   });
 
   afterEach(() => {
     vi.unstubAllGlobals();
+    setCurrentRouteSpan(null);
   });
 
   it("returns round-trip destination and return results", async () => {
     const fetchMock = vi.mocked(fetch);
     fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      statusText: "OK",
       json: async () => mockTripResult,
     } as Response);
 
@@ -130,6 +137,9 @@ describe("Flight service", () => {
   it("omits return parameter for one-way searches", async () => {
     const fetchMock = vi.mocked(fetch);
     fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      statusText: "OK",
       json: async () => [mockTripResult[0]],
     } as Response);
 
@@ -145,6 +155,9 @@ describe("Flight service", () => {
   it("defaults null inputs to empty query values", async () => {
     const fetchMock = vi.mocked(fetch);
     fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      statusText: "OK",
       json: async () => [],
     } as Response);
 
@@ -169,9 +182,26 @@ describe("Flight service", () => {
     ).rejects.toThrow("network down");
   });
 
+  it("throws on non-OK search response", async () => {
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      statusText: "Internal Server Error",
+      json: async () => ({}),
+    } as Response);
+
+    await expect(
+      searchFlight("CHP", "SIL", "2024-07-01", "2024-07-07", "Economy")
+    ).rejects.toThrow("HTTP 500: Internal Server Error");
+  });
+
   it("returns airports based on AirportsData-derived mock data", async () => {
     const fetchMock = vi.mocked(fetch);
     fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      statusText: "OK",
       json: async () => mockAirports,
     } as Response);
 
@@ -198,6 +228,9 @@ describe("Flight service", () => {
   it("adds limit parameter when provided", async () => {
     const fetchMock = vi.mocked(fetch);
     fetchMock.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      statusText: "OK",
       json: async () => mockAirports,
     } as Response);
 
@@ -207,5 +240,51 @@ describe("Flight service", () => {
     const query = calledUrl.split("?")[1];
     const params = new URLSearchParams(query);
     expect(params.get("limit")).toBe("5");
+  });
+
+  it("throws on non-OK typeahead response", async () => {
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      statusText: "Not Found",
+      json: async () => ([]),
+    } as Response);
+
+    await expect(airportTypeAhead("CH")).rejects.toThrow("HTTP 404: Not Found");
+  });
+
+  it("uses parent context from active route span during searchFlight", async () => {
+    const mockSpan: Span = {
+      setAttribute: vi.fn(), setAttributes: vi.fn(),
+      setStatus: vi.fn(), recordException: vi.fn(), end: vi.fn(),
+    } as unknown as Span;
+    setCurrentRouteSpan(mockSpan);
+
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockResolvedValueOnce({
+      ok: true, status: 200, statusText: "OK",
+      json: async () => mockTripResult,
+    } as Response);
+
+    const result = await searchFlight("CHP", "SIL", "2024-07-01", null, "Economy");
+    expect(result).toEqual(mockTripResult);
+  });
+
+  it("uses parent context from active route span during airportTypeAhead", async () => {
+    const mockSpan: Span = {
+      setAttribute: vi.fn(), setAttributes: vi.fn(),
+      setStatus: vi.fn(), recordException: vi.fn(), end: vi.fn(),
+    } as unknown as Span;
+    setCurrentRouteSpan(mockSpan);
+
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockResolvedValueOnce({
+      ok: true, status: 200, statusText: "OK",
+      json: async () => mockAirports,
+    } as Response);
+
+    const result = await airportTypeAhead("CH");
+    expect(result).toEqual(mockAirports);
   });
 });

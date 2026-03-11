@@ -1,7 +1,7 @@
-# Unit 3: Mantine v7 Migration - Logical Components
+# Unit 3: Mantine v8 Migration - Logical Components
 
 ## Overview
-Logical components represent the non-functional infrastructure and validation workflow needed to safely migrate Mantine v6 → v7.
+Logical components represent the non-functional infrastructure and validation workflow needed to safely migrate Mantine v6 -> v8.
 
 ---
 

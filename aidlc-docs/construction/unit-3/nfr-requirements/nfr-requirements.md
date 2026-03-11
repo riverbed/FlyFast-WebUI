@@ -1,7 +1,7 @@
-# Unit 3: Mantine v7 Migration - NFR Requirements
+# Unit 3: Mantine v8 Migration - NFR Requirements
 
 ## Overview
-This document defines the non-functional requirements for migrating all Mantine UI components from v6 to v7 while preserving functionality and maintaining acceptable performance and visual standards.
+This document defines the non-functional requirements for migrating all Mantine UI components from v6 to v8 while preserving functionality and maintaining acceptable performance and visual standards.
 
 ---
 
@@ -59,8 +59,8 @@ This document defines the non-functional requirements for migrating all Mantine 
   - No `any` types added solely to bypass type errors.
 
 ### NFR-4.2 Component Customization Strategy
-- **Requirement**: Adopt Mantine v7 defaults; remove custom overrides unless critical.
-- **Rationale**: Reduce maintenance burden and align with v7 styling system.
+- **Requirement**: Adopt Mantine v8 defaults; remove custom overrides unless critical.
+- **Rationale**: Reduce maintenance burden and align with v8 styling system.
 - **Acceptance Criteria**:
   - Critical functional styling remains intact.
   - Non-critical custom overrides removed when possible.
@@ -81,10 +81,10 @@ This document defines the non-functional requirements for migrating all Mantine 
 ## NFR-6: Compatibility
 
 ### NFR-6.1 Browser Compatibility
-- **Requirement**: Use Mantine v7 default browser support.
+- **Requirement**: Use Mantine v8 default browser support.
 - **Acceptance Criteria**:
   - No custom browserslist changes required.
-  - App renders correctly in evergreen browsers supported by Mantine v7.
+  - App renders correctly in evergreen browsers supported by Mantine v8.
 
 ---
 
@@ -103,7 +103,7 @@ This document defines the non-functional requirements for migrating all Mantine 
 - Manual visual comparison is required, with improvements allowed but no regressions.
 - Migration is forward-only; issues are fixed in-place.
 - Maintain current strict TypeScript settings.
-- Adopt Mantine v7 defaults; reduce custom styling.
+- Adopt Mantine v8 defaults; reduce custom styling.
 - Testing is primarily visual; no major test expansion required.
 - Browser support follows Mantine v7 defaults.
 - Documentation is limited to inline code comments.

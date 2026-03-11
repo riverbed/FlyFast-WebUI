@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 import { CartContext, CartProvider, getStorageConfig } from "@/services/Context";
 import type { FlightSegment } from "@/services/Flight";
+import { setCurrentRouteSpan } from "@/services/RouteTracing";
 
 const flightA: FlightSegment = {
   flightNumber: "FF123",
@@ -50,6 +51,7 @@ const CartHarness = () => {
 describe("CartContext provider", () => {
   beforeEach(() => {
     localStorage.clear();
+    setCurrentRouteSpan(null);
   });
 
   it("initializes with empty cart and empty purchase history", async () => {
@@ -156,5 +158,91 @@ describe("CartContext provider", () => {
     expect(config.deserialize('[{"flightNumber":"FF1"}]')).toEqual([
       { flightNumber: "FF1" },
     ]);
+  });
+
+  it("supports instrumentation path when route span is present", async () => {
+    setCurrentRouteSpan({
+      setAttribute: vi.fn(),
+      setAttributes: vi.fn(),
+      setStatus: vi.fn(),
+      recordException: vi.fn(),
+      end: vi.fn(),
+    } as any);
+
+    render(
+      <CartProvider>
+        <CartHarness />
+      </CartProvider>
+    );
+
+    fireEvent.click(screen.getByText("add-one"));
+    await waitFor(() => {
+      expect(screen.getByTestId("cart-length")).toHaveTextContent("1");
+    });
+  });
+
+  it("records error span when setCart throws during addToCart", async () => {
+    render(
+      <CartProvider>
+        <CartHarness />
+      </CartProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("cart-length")).toHaveTextContent("0");
+    });
+
+    // Force localStorage.setItem to throw to exercise the catch block
+    const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementationOnce(() => {
+      throw new Error("QuotaExceededError: storage full");
+    });
+
+    // Click should not propagate the throw to the caller
+    expect(() => fireEvent.click(screen.getByText("add-one"))).not.toThrow();
+
+    spy.mockRestore();
+  });
+
+  it("records error span when setCart throws during removeFromCart", async () => {
+    render(
+      <CartProvider>
+        <CartHarness />
+      </CartProvider>
+    );
+
+    // Add a flight first so removeFromCart has something to remove
+    fireEvent.click(screen.getByText("add-one"));
+    await waitFor(() => {
+      expect(screen.getByTestId("cart-length")).toHaveTextContent("1");
+    });
+
+    const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementationOnce(() => {
+      throw new Error("QuotaExceededError: storage full");
+    });
+
+    expect(() => fireEvent.click(screen.getByText("remove-first"))).not.toThrow();
+
+    spy.mockRestore();
+  });
+
+  it("records error span when setPastCart throws during purchaseCart", async () => {
+    render(
+      <CartProvider>
+        <CartHarness />
+      </CartProvider>
+    );
+
+    fireEvent.click(screen.getByText("add-one"));
+    await waitFor(() => {
+      expect(screen.getByTestId("cart-length")).toHaveTextContent("1");
+    });
+
+    const spy = vi.spyOn(Storage.prototype, "setItem").mockImplementationOnce(() => {
+      throw new Error("QuotaExceededError: storage full");
+    });
+
+    expect(() => fireEvent.click(screen.getByText("purchase"))).not.toThrow();
+
+    spy.mockRestore();
   });
 });

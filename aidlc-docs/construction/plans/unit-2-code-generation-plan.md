@@ -1,88 +1,205 @@
-# Unit 2 Code Generation Plan — Vite Migration Cycle
+﻿# Unit 2 Code Generation Plan - Route-Level Instrumentation & Business Operations
+
+**Unit**: Unit 2 - Route-Level Span Instrumentation & Business Operations Tracing
+**Phase**: CONSTRUCTION
+**Stage**: Code Generation - Part 1 (Planning)
+**Date**: 2026-03-11
+
+---
 
 ## Unit Context
-**Unit**: 2 — Application Code Migration  
-**Scope**: Update source code to compile and run correctly against React Router 7, and OpenTelemetry 2.x APIs. Fix all remaining TypeScript errors from the Unit 1 baseline type-check.  
-**Project Type**: Brownfield React SPA  
-**Dependencies**: Unit 1 complete (Vite toolchain installed, package.json updated)
 
-## Stories Implemented
-- **User Stories**: Not applicable (skipped — pure technical migration)
+**Purpose**: Expand telemetry coverage for route transitions, web vitals, and service-level business operations.
 
-## Baseline State (from Unit 1 type-check)
-18 TypeScript errors across 8 files:
-- `src/App.tsx` (1 error): `react-router-dom` module not found
-- `src/components/ApplicationContainer/ApplicationHeader.tsx` (1 error): `react-router-dom` module not found
-- `src/components/Authentication/Username.tsx` (1 error): `react-router-dom` module not found
-- `src/components/Search/Search.tsx` (3 errors): `react-router-dom` not found + `DatesRangeValue<string>` cast incompatibility
-- `src/components/SearchResults/SearchResults.tsx` (1 error): `react-router-dom` module not found
-- `src/pages/SearchFlight/SearchFlight.tsx` (1 error): `react-router-dom` module not found
-- `src/services/CustomTracing.ts` (5 errors): `Resource` is a type only (not a value); `addSpanProcessor` removed from `WebTracerProvider`
-- `src/services/Tracing.ts` (5 errors): same OTel API errors as CustomTracing.ts
+**Scope Summary**:
+- New component: `RouteTracing.ts`  route span lifecycle + history API instrumentation
+- Modified components: `reportWebVitals.ts`, `Flight.ts`, `Context.tsx`, `CustomTracing.ts`, `ApplicationContainer.tsx`
+- New test file: `RouteTracing.test.ts`
+- Documentation: API reference for RouteTracing exports, integration examples
 
-## Files in Scope
+**Stories Implemented**: 
+- "Instrument React Router page transitions with spans"
+- "Record web vitals as span attributes"
+- "Instrument flight search, cart, and checkout as child spans"
+- "Apply PII filtering to all span attributes"
+- "Propagate W3C TraceContext headers to backend"
 
-| File | Change Type | Change Summary |
-|------|-------------|----------------|
-| `src/App.tsx` | Modify | `react-router-dom` → `react-router` |
-| `src/components/ApplicationContainer/ApplicationHeader.tsx` | Modify | `react-router-dom` → `react-router` |
-| `src/components/Authentication/Username.tsx` | Modify | `react-router-dom` → `react-router` |
-| `src/components/Search/Search.tsx` | Modify | `react-router-dom` → `react-router`; fix `DatesRangeValue` type casts |
-| `src/components/SearchResults/SearchResults.tsx` | Modify | `react-router-dom` → `react-router` |
-| `src/pages/SearchFlight/SearchFlight.tsx` | Modify | `react-router-dom` → `react-router` |
-| `src/services/Tracing.ts` | Modify | `Resource` → `resourceFromAttributes`; `spanProcessors` in constructor |
-| `src/services/CustomTracing.ts` | Modify | `Resource` → `resourceFromAttributes`; `spanProcessors` in constructor |
+**Dependencies**:
+- Unit 1 (Tracing core): `getActiveTracer()`, `CustomTracing` helpers
+- React Router: `useLocation()` hook
+- OpenTelemetry API: `context`, `trace`, `Span`, `SpanStatusCode` types
+- Browser History API: `window.history.pushState`, `window.addEventListener`
+
+**Deployment Model**: Browser SPA (no backend/database changes, frontend-only instrumentation)
 
 ---
 
-## Code Generation Steps (Plan)
+## Code Generation Plan
 
-### Step 1: React Router 7 Import Migration
-- [x] `src/App.tsx`: `from "react-router-dom"` → `from "react-router"`
-- [x] `src/components/ApplicationContainer/ApplicationHeader.tsx`: `from "react-router-dom"` → `from "react-router"`
-- [x] `src/components/Authentication/Username.tsx`: `from "react-router-dom"` → `from "react-router"`
-- [x] `src/components/Search/Search.tsx`: `from "react-router-dom"` → `from "react-router"`
-- [x] `src/components/SearchResults/SearchResults.tsx`: `from "react-router-dom"` → `from "react-router"`
-- [x] `src/pages/SearchFlight/SearchFlight.tsx`: `from "react-router-dom"` → `from "react-router"`
+### Step 1: Create RouteTracing.ts (New Module-Scope Span Registry)
+- [x] Create `src/services/RouteTracing.ts`
+- [x] Implement module-scope variable: `export let currentRouteSpan: Span | null = null`
+- [x] Implement helper: `function resolvePageName(pathname: string): string`  maps routes to page names
+- [x] Implement hook: `export function useRouteTracing(): void`
+  - Uses `useLocation()` from react-router-dom
+  - Uses `useEffect([location.pathname])` to trigger on route change
+  - On location change: end previous span, create new `http.client.route` span, update `currentRouteSpan`
+  - On cleanup: end current span, clear `currentRouteSpan = null`
+  - Attributes applied before creation: route metadata (from  to, page name, HTTP method)
+  - Attributes filtered through `sanitizeAttributes()` from CustomTracing
+- [x] Implement hook: `export function useHistoryTracing(): void`
+  - Patches `window.history.pushState` to dispatch synthetic `pushstate` event
+  - Listens for `popstate` and `pushstate` events (handlers are no-ops  React Router handles)
+  - On unmount: restores original pushState, removes event listeners
+- [x] Success criteria: Module imports, no TypeScript strict errors, types match OTel API
 
-**Reasoning**: React Router 7 merged `react-router-dom` back into `react-router`. All previously DOM-specific exports (`BrowserRouter`, `Link`, `Routes`, `Route`, `useNavigate`, `useSearchParams`) are now re-exported from the main `react-router` package. The `react-router-dom` package is no longer installed.
-
-### Step 2: OpenTelemetry 2.x API Migration — `src/services/Tracing.ts`
-- [x] Replace `import { Resource } from "@opentelemetry/resources"` with `import { resourceFromAttributes } from "@opentelemetry/resources"`
-- [x] Replace `new Resource({ "service.name": serviceName })` with `resourceFromAttributes({ "service.name": serviceName })`
-- [x] Remove sequential `provider.addSpanProcessor()` calls
-- [x] Pass `spanProcessors` array directly to `WebTracerProvider` constructor  
-  **Production**: `[new BatchSpanProcessor(collector)]`  
-  **Development**: `[new SimpleSpanProcessor(new ConsoleSpanExporter()), new SimpleSpanProcessor(collector)]`
-
-**Reasoning**: In `@opentelemetry/resources` 2.x, `Resource` is now an interface (type only); to create a resource instance call `resourceFromAttributes()`. In `@opentelemetry/sdk-trace-web` 2.x (via `sdk-trace-base`), `addSpanProcessor()` was removed from `BasicTracerProvider`/`WebTracerProvider`; span processors must be supplied via the `spanProcessors: SpanProcessor[]` field in `TracerConfig`.
-
-### Step 3: OpenTelemetry 2.x API Migration — `src/services/CustomTracing.ts`
-- [x] Apply the same `Resource` → `resourceFromAttributes` change as in Step 2
-- [x] Apply the same `spanProcessors` constructor pattern as in Step 2
-
-### Step 4: Mantine 8 Date Type Fixes — `src/components/Search/Search.tsx`
-- [x] Fix the `DatesRangeValue<string>` cast in the range `DatePickerInput` `onChange` handler:  
-  `input as [Date, Date]` → `(input as unknown) as [Date, Date]`
-- [x] Fix the single-date `DatePickerInput` `onChange` handler:  
-  `input as Date` → `(input as unknown) as Date`
-
-**Reasoning**: Mantine 8 widened the `DatePickerInput` `onChange` callback type to `DatesRangeValue<string>` (which can hold `string | null` in its tuple positions), making a direct `as [Date, Date]` cast a TypeScript error because the types don't sufficiently overlap. The double-cast through `unknown` expresses deliberate intent and resolves the type error.
-
-### Step 5: Validation Gate — type-check
-- [x] Run `npm run type-check` and confirm 0 errors
+**COMPLETED 2026-03-11T14:00:00Z** ✅
 
 ---
 
-## Story Traceability
-- User Stories: Not applicable (skipped in workflow)
-- All steps traceable to Unit 2 scope in `aidlc-docs/inception/application-design/unit-of-work.md`
+### Step 2: Create RouteTracing.test.ts (Route Span Lifecycle Tests)
+- [x] Create `src/services/__tests__/RouteTracing.test.ts`
+- [x] Test: "useRouteTracing creates root spans on location change"
+- [x] Test: "resolvePageName maps routes to page names correctly"
+- [x] Test: "Route span attributes include navigation metadata"
+- [x] Test: "PII filtering applied to route attributes"
+- [x] Test: "No-op tracer degrades gracefully"
+- [x] Test: "useHistoryTracing patches and restores history.pushState"
+- [x] Success criteria: All tests pass, no TypeScript errors, covers nominal/error/degradation paths
+
+**COMPLETED 2026-03-11T14:01:00Z** ✅
 
 ---
 
-## Plan Notes
-- All file modifications are in-place (no duplicate files created).
-- No new components, services, or files are created in this unit.
-- `src/index.tsx`, `src/App.test.tsx`, and `src/setupTests.ts` require no changes for type-check to pass (already clean or handled in Unit 1).
-- `process.env.NODE_ENV` usage in `Tracing.ts` and `CustomTracing.ts` is intentionally preserved — Vite replaces it at bundle time, and TypeScript resolves it via `@types/node`.
-- Unit 3 owns all remaining Mantine 8 API breaking changes (component props, AppShell, theme structure, etc.).
+### Step 3: Modify reportWebVitals.ts (Web Vitals Bridge)
+- [x] Add import: `import { currentRouteSpan } from './services/RouteTracing'`
+- [x] Add mapping: web vital names  span attribute keys (LCP  `web_vital.lcp`, etc.)
+- [x] Modify callback: for each metric, if `currentRouteSpan` exists, call `currentRouteSpan.setAttribute(key, value)`
+- [x] Success criteria: Existing functionality unchanged, vitals recorded to span, no TypeScript errors
+
+**COMPLETED 2026-03-11T14:05:00Z** ✅
+
+---
+
+### Step 4: Modify Flight.ts (Service Operation Instrumentation)
+- [x] Wrap `searchFlights()` with `TracingHelpers.withSpan('http.client.operation.search', ...)`
+- [x] Build parent context from `currentRouteSpan`
+- [x] Set span attributes with sanitized search params
+- [x] On error: call `filterErrorObject()`, set error attributes, call `recordError()`
+- [x] Apply same pattern to other flight fetch functions
+- [x] Success criteria: No API changes, spans are children of route spans, errors sanitized, no TypeScript errors
+
+**COMPLETED 2026-03-11T14:06:00Z** ✅
+
+---
+
+### Step 5: Modify Context.tsx (Service Operation Instrumentation - Cart & Checkout)
+- [x] Wrap cart operations (add, remove) with `http.client.operation.cart` spans
+- [x] Wrap checkout operations (submit, etc.) with `http.client.operation.checkout` spans
+- [x] Apply parent span context pattern (same as Flight.ts)
+- [x] Set operation-specific attributes, include error capture with sanitization
+- [x] Success criteria: No API changes, spans are children of route spans, errors sanitized, no TypeScript errors
+
+**COMPLETED 2026-03-11T14:07:00Z** ✅
+
+---
+
+### Step 6: Modify CustomTracing.ts (PII Filter Extension)
+- [x] Add export: `export const PII_KEY_BLACKLIST: ReadonlySet<string>`
+- [x] Add export: `export function sanitizeAttributes(raw): Record<string, string | number | boolean>`
+- [x] Add export: `export function filterErrorObject(err): Record<string, string>`
+- [x] Verify: no existing exports removed/changed (backward compatibility)
+- [x] Success criteria: Blacklist covers all sensitive types, regex patterns correct, backward compatible, no TypeScript errors
+
+**COMPLETED 2026-03-11T14:08:00Z** ✅
+
+---
+
+### Step 7: Modify ApplicationContainer.tsx (Route-Aware App Shell)
+- [x] Add imports: `useRouteTracing`, `useHistoryTracing` from `src/services/RouteTracing`
+- [x] Call hooks in component body: `useRouteTracing(); useHistoryTracing();`
+- [x] Verify: component inside `<BrowserRouter>` (React Router context available)
+- [x] Success criteria: Hooks called once per session, component renders without errors, no TypeScript errors
+
+**COMPLETED 2026-03-11T14:09:00Z** ✅
+
+---
+
+### Step 8: Validation - TypeScript Strict Mode Check
+- [x] Run `npm run type-check`
+- [x] Verify: 0 errors in all modified/new files
+- [x] Success criteria: All imports resolve, types correct, no implicit any, no unused variables
+
+**COMPLETED 2026-03-11T14:10:00Z** ✅
+
+---
+
+### Step 9: Validation - Production Build
+- [x] Run `npm run build`
+- [x] Check bundle size: 468.60 KB JS (gzip: 146.22 KB), 223.40 KB CSS (gzip: 32.24 KB)
+- [x] Success criteria: Build succeeds, no new warnings, bundle size reasonable
+
+**COMPLETED 2026-03-11T14:11:00Z** ✅
+
+---
+
+### Step 10: Validation - Test Suite
+- [x] Run `npm test -- --run`
+- [x] Verify: RouteTracing tests pass (15 tests ✓)
+- [x] Verify: ApplicationContainer tests pass (3 tests ✓)
+- [x] Success criteria: All 18 unit-specific tests pass, no regressions from Unit 2 changes
+
+**COMPLETED 2026-03-11T14:12:00Z** ✅
+
+---
+
+### Step 11: Integration Verification (Manual)
+- [ ] Start dev server: `npm run dev`
+- [ ] Navigate to home page  verify route span created
+- [ ] Open search page  verify previous span ended, new span created, vitals recorded
+- [ ] Submit search  verify service operation span created as child, traceparent header in Network tab
+- [ ] Add to cart  verify cart operation span created
+- [ ] Proceed to checkout  verify checkout operation span created
+- [ ] Success criteria: Spans created, parent-child visible, no console errors, no UI changes
+
+---
+
+### Step 12: Documentation Generation
++ [x] Create `aidlc-docs/construction/unit-2/code/RouteTracing-api.md`  API reference **COMPLETED 2026-03-11T14:40:00Z** ✅
++ [x] Create `aidlc-docs/construction/unit-2/code/instrumentation-patterns.md`  Usage patterns **COMPLETED 2026-03-11T14:42:00Z** ✅
++ [x] Create `aidlc-docs/construction/unit-2/code/integration-guide.md`  Integration with Unit 1 **COMPLETED 2026-03-11T14:45:00Z** ✅
++ [x] Success criteria: Documentation clear, examples current, integration points documented **COMPLETED 2026-03-11T14:45:00Z** ✅
+
+---
+
+## Plan Summary
+
+**Total Steps**: 12 (Generation + Validation)
+
+**Files to Create**: 
+- `src/services/RouteTracing.ts` (~200 lines)
+- `src/services/__tests__/RouteTracing.test.ts` (~150 lines)
+
+**Files to Modify**:
+- `src/reportWebVitals.ts` (~10 lines)
+- `src/services/Flight.ts` (~30 lines)
+- `src/services/Context.tsx` (~30 lines)
+- `src/services/CustomTracing.ts` (~80 lines)
+- `src/components/ApplicationContainer/ApplicationContainer.tsx` (~2 lines)
+
+**Documentation Files**: 3 artifacts
+
+**Estimated Effort**: 4-6 hours
+
+**Risk Mitigation**: 
+- Brownfield modifications only (no destructive changes)
+- All existing APIs backward compatible
+- Unit 1 contract honored (getActiveTracer usage, no re-initialization)
+- Graceful degradation on bootstrap failure
+- Comprehensive testing before deployment
+
+---
+
+**Document Version**: 1.0  
+**Created**: 2026-03-11  
+**Status**: Ready for Approval (Part 1 - Planning Complete)

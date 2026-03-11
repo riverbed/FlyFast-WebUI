@@ -1,747 +1,351 @@
-# Logical Components - Unit 2: TypeScript Conversion
+﻿# Logical Components - Unit 2: Route-Level Instrumentation
 
-**Unit**: Unit 2 - TypeScript Conversion  
-**Phase**: CONSTRUCTION  
-**Stage**: NFR Design  
-**Date**: 2026-03-09  
-
----
-
-## Executive Summary
-
-This document defines the logical components that comprise the TypeScript conversion system for Unit 2. These are the tools, configurations, processes, and integrations that enable safe, performant, and validated migration of JavaScript code to TypeScript.
-
-Unlike infrastructure components (servers, databases), these logical components represent the **conversion toolchain** and **quality assurance mechanisms** that ensure successful migration.
+**Unit**: Unit 2 - Route-Level Span Instrumentation & Business Operations Tracing
+**Phase**: CONSTRUCTION
+**Stage**: NFR Design
+**Date Generated**: 2026-03-11
 
 ---
 
-## Component Category 1: TypeScript Compilation System
+## Overview
 
-### Component 1.1: TypeScript Compiler (tsc)
-
-**Purpose**: Transpile TypeScript source files to JavaScript and perform type checking.
-
-**Configuration**:
-- **Config File**: `tsconfig.json` (created in Unit 1)
-- **Version**: TypeScript 5.9.3 (installed in Unit 1)
-- **Compiler Options**:
-  - `strict: true` (full strict mode enforcement)
-  - `target: ES2020` (output JavaScript version)
-  - `jsx: react-jsx` (React 18 JSX transform)
-  - `moduleResolution: node` (Node.js resolution strategy)
-  - `skipLibCheck: true` (performance optimization)
-  - `incremental: true` (faster rebuild times)
-
-**Interfaces**:
-- **Input**: `src/**/*.ts`, `src/**/*.tsx` files
-- **Output**: `build/**/*.js` files (during production build)
-- **Type-check only**: `tsc --noEmit` (validation without code generation)
-
-**Performance Targets**:
-- Full type-check: < 30 seconds
-- Incremental type-check: < 5 seconds
-
-**Integration Points**:
-- **react-scripts build**: Invokes tsc during production build
-- **IDE integration**: tsc language server provides real-time feedback
-- **npm scripts**: `npm run type-check` runs tsc in validation mode
-
-**Responsibilities**:
-- Parse TypeScript syntax
-- Validate type correctness against strict mode rules
-- Generate JavaScript output (or skip with --noEmit)
-- Report type errors with file/line locations
-
-**Success Criteria**:
-- ✅ All converted files pass type-check with zero errors
-- ✅ Performance targets met (< 30s full, < 5s incremental)
-- ✅ Strict mode enforc
-
-ed for all application code
+Six logical components implement the seven design patterns for Unit 2. Each component has a clearly defined responsibility, a single corresponding source file, and explicit integration contracts with other components.
 
 ---
 
-### Component 1.2: TypeScript Build Info
+## Component Map
 
-**Purpose**: Enable incremental compilation for faster type-checking.
-
-**Configuration**:
-- **File**: `.tsbuildinfo` (generated in `./build/` directory)
-- **Enabled by**: `"incremental": true` in tsconfig.json
-- **Behavior**: Caches previous compilation results, only reprocesses changed files
-
-**Interfaces**:
-- **Input**: Previous TypeScript compilation state
-- **Output**: Updated compilation state after changes
-
-**Integration Points**:
-- TypeScript compiler reads/writes .tsbuildinfo automatically
-- Git-ignored (not committed to repository)
-
-**Responsibilities**:
-- Store compilation state between runs
-- Enable fast incremental type-checking (< 5s target)
-- Reduce CPU usage for repeated type-checks
-
-**Success Criteria**:
-- ✅ Incremental type-check completes in < 5 seconds
-- ✅ .tsbuildinfo file generated and used correctly
+`
+src/
+ services/
+    RouteTracing.ts          [NEW]   Component 1: Route Span Controller
+                                       Component 2: History Instrumentation Layer
+    CustomTracing.ts         [MOD]   Component 5: PII Filter Extension
+    Flight.ts                [MOD]   Component 4: Service Operation Wrappers
+    Context.tsx              [MOD]   Component 4: Service Operation Wrappers
+ reportWebVitals.ts           [MOD]   Component 3: Web Vitals Bridge
+ components/
+     ApplicationContainer/
+         ApplicationContainer.tsx [MOD] Component 6: Route-Aware App Shell
+`
 
 ---
 
-### Component 1.3: Type Declarations (@types packages)
+## Component 1: Route Span Controller
 
-**Purpose**: Provide TypeScript type definitions for third-party libraries.
+**File**: `src/services/RouteTracing.ts` (new)
+**Pattern**: Module-Scope Span Registry (P1) + Hook-Based Lifecycle (P2)
 
-**Installed Packages** (from Unit 1):
-- `@types/react` - React types
-- `@types/react-dom` - React DOM types
-- `@types/node` - Node.js built-in modules
+**Responsibility**: Owns the lifecycle of all route transition spans. Creates a new root span on each React Router location change, ends the previous span on the next navigation, and exports the active span reference for consumption by other components.
 
-**Interfaces**:
-- **Input**: Import statements for third-party libraries
-- **Output**: Type information for TypeScript compiler
+**Public API**:
 
-**Integration Points**:
-- TypeScript compiler automatically resolves @types packages
-- Located in `node_modules/@types/...`
+`	ypescript
+// Module-scope span registry (readable by any importer)
+export let currentRouteSpan: Span | null;
 
-**Responsibilities**:
-- Provide accurate types for React, React DOM, and Node APIs
-- Enable autocomplete and type-checking for library usage
-- Prevent "cannot find module" errors for typed libraries
+// React hook  call once per app session in ApplicationContainer
+export function useRouteTracing(): void;
 
-**Success Criteria**:
-- ✅ All major dependencies have type definitions (React, Mantine, Router)
-- ✅ No "missing types" errors during compilation
+// Route name resolver (exported for testability)
+export function resolvePageName(path: string): string;
+`
 
----
+**Internal behavior**:
+- `useRouteTracing` hook: `useEffect([location.pathname])`
+  - On enter: end previous span (if any), start new `http.client.route` span, update `currentRouteSpan`
+  - On cleanup: end current span, set `currentRouteSpan = null`
+- Root spans carry these attributes (all filtered via `sanitizeAttributes`):
+  - `http.route`: current pathname
+  - `http.url.path`: current pathname
+  - `http.method`: `GET`
+  - `app.route.from`: previous pathname or `(direct)`
+  - `app.route.to`: current pathname
+  - `app.page.name`: resolved page name (Home / SearchFlight / Checkout / unknown)
 
-## Component Category 2: Type Checking & Validation
+**Dependencies**:
+- `getActiveTracer` from `Tracing.ts` (Unit 1)
+- `sanitizeAttributes` from `CustomTracing.ts` (Component 5)
+- `useLocation` from `react-router-dom`
+- `@opentelemetry/api` (SpanStatusCode)
 
-### Component 2.1: Type Check Script
-
-**Purpose**: Execute standalone type validation without production build.
-
-**Configuration**:
-- **Script**: `npm run type-check` (runs `tsc --noEmit`)
-- **Watch Mode**: `npm run type-check:watch` (runs `tsc --noEmit --watch`)
-
-**Interfaces**:
-- **Input**: All TypeScript source files in `src/`
-- **Output**: Console output with type errors (or success confirmation)
-
-**Integration Points**:
-- Invoked manually during development
-- Can be integrated into CI/CD pipeline
-- Called during conversion phases for quality gates
-
-**Responsibilities**:
-- Validate type correctness without generating JavaScript
-- Provide fast feedback loop for developers
-- Report all type errors in all files
-
-**Success Criteria**:
-- ✅ Script runs successfully and reports zero errors
-- ✅ Completes in < 30 seconds for full codebase
-- ✅ Watch mode responds in < 5 seconds after file changes
+**Integration contract for consumers**:
+- Import `currentRouteSpan` to get the active span reference
+- Never call `Tracing()`  only `getActiveTracer()`
+- `currentRouteSpan` may be null; callers must handle null gracefully
 
 ---
 
-### Component 2.2: Strict Mode Enforcement
+## Component 2: History Instrumentation Layer
 
-**Purpose**: Catch maximum number of type safety issues at compile time.
+**File**: `src/services/RouteTracing.ts` (new  same file as Component 1)
+**Pattern**: History API Delegation (P3)
 
-**Configuration**:
-- **Enabled in**: `tsconfig.json` with `"strict": true`
-- **Strict Flags Enabled**:
-  - `noImplicitAny` - Disallow implicit any types
-  - `strictNullChecks` - Require null/undefined checks
-  - `strictFunctionTypes` - Enforce function signature compatibility
-  - `strictBindCallApply` - Type-check bind/call/apply
-  - `strictPropertyInitialization` - Ensure class properties initialized
-  - `noImplicitThis` - Require explicit this typing
-  - `alwaysStrict` - Emit "use strict" in output
+**Responsibility**: Extends navigation coverage to include non-React Router navigations (direct `history.pushState` calls, browser back/forward). Patches the global History API on mount and restores it cleanly on unmount.
 
-**Interfaces**:
-- **Input**: TypeScript source code
-- **Output**: Type errors for violations
+**Public API**:
 
-**Integration Points**:
-- TypeScript compiler enforces on all files in `src/`
-- Applied during both type-check and production build
+`	ypescript
+// React hook  call once per app session in ApplicationContainer (alongside useRouteTracing)
+export function useHistoryTracing(): void;
+`
 
-**Responsibilities**:
-- Prevent implicit `any` types
-- Require null/undefined checks
-- Enforce type-safe function signatures
-- Catch potential runtime errors at compile time
+**Internal behavior**:
+- On mount: save `window.history.pushState` reference, override with wrapper that calls original + dispatches `pushstate` custom event
+- Add `popstate` and `pushstate` event listeners (handlers are no-ops  React Router location changes drive span creation via `useRouteTracing`)
+- On unmount: restore original `pushState`, remove event listeners
 
-**Success Criteria**:
-- ✅ All converted files pass strict mode checks
-- ✅ Zero implicit `any` types (except explicitly annotated)
-- ✅ No relaxing of strict flags during conversion
+**Note**: This component does not create spans directly. Its sole job is routing non-React navigations through React Router's location update mechanism, which then triggers `useRouteTracing`.
+
+**Dependencies**:
+- `window.history` (browser global)
+- No OTel dependencies
 
 ---
 
-### Component 2.3: Type Escape Documentation System
+## Component 3: Web Vitals Bridge
 
-**Purpose**: Track and justify pragmatic use of `any` and type assertions.
+**File**: `src/reportWebVitals.ts` (modified)
+**Pattern**: Late-Attribute Injection (P4)
 
-**Configuration**:
-- **Pattern**: Inline comments required for all type escapes
-- **Format**: `// Using \`any\` because: [justification]`
+**Responsibility**: Translates browser Web Vitals metrics into OTel span attributes on the active route span. Records each vital as a `web_vital.*` attribute on `currentRouteSpan` as they arrive asynchronously from the browser.
 
-**Interfaces**:
-- **Input**: Code with type escapes (`any`, `as`, `!`, etc.)
-- **Output**: Human-readable justifications for future maintainers
+**Modified behavior**:
 
-**Integration Points**:
-- Applied during file conversion (Pattern 3)
-- Reviewed during code generation summary
+`	ypescript
+// Addition to existing reportWebVitals.ts
 
-**Responsibilities**:
-- Document why type escapes are necessary
-- Provide context for future refinement
-- Mark temporary workarounds with TODO
-- Distinguish intentional escapes from lazy typing
+import { currentRouteSpan } from './services/RouteTracing';
 
-**Success Criteria**:
-- ✅ All type escapes include inline justification
-- ✅ Core domain types (Flight, SearchParams) have zero escapes
-- ✅ Third-party boundaries clearly marked
+const VITAL_ATTR: Record<string, string> = {
+  LCP:  'web_vital.lcp',
+  FCP:  'web_vital.fcp',
+  CLS:  'web_vital.cls',
+  FID:  'web_vital.fid',
+  TTFB: 'web_vital.ttfb',
+  INP:  'web_vital.inp',
+};
 
----
+function recordVital(metric: { name: string; value: number }): void {
+  const key = VITAL_ATTR[metric.name];
+  if (key && currentRouteSpan) {
+    currentRouteSpan.setAttribute(key, metric.value);
+  }
+}
+`
 
-## Component Category 3: IDE Integration & Developer Experience
+**Lifecycle nuance**: Vitals may arrive after `currentRouteSpan` has been replaced by a new navigation span. The attribute is set on whichever span is current at the time of arrival  this is acceptable because vitals are associated with the page that triggered them, and the span for that page transitions before the next navigation.
 
-### Component 3.1: TypeScript Language Server (tsserver)
-
-**Purpose**: Provide real-time type checking and IntelliSense in IDEs.
-
-**Configuration**:
-- **Auto-detected by**: VS Code, WebStorm, and similar IDEs
-- **Language**: TypeScript 5.9.3 (same version as compiler)
-- **Sources config from**: `tsconfig.json`
-
-**Interfaces**:
-- **Input**: Editor file changes, cursor position
-- **Output**: Error squiggles, autocomplete suggestions, type info on hover
-
-**Integration Points**:
-- VS Code TypeScript extension
-- WebStorm built-in TypeScript support
-- Reads tsconfig.json for compiler options
-
-**Responsibilities**:
-- Real-time type error feedback as developer types
-- Autocomplete for props, function parameters, etc.
-- "Go to definition" navigation
-- Quick fix suggestions for common errors
-- Refactoring support (rename symbol, extract function)
-
-**Success Criteria**:
-- ✅ IDE detects TypeScript configuration automatically
-- ✅ Real-time error feedback < 1 second after typing
-- ✅ Autocomplete works for all typed components/functions
-- ✅ No performance degradation in IDE
+**Dependencies**:
+- `currentRouteSpan` from `RouteTracing.ts` (Component 1)
+- `web-vitals` package (already present in `package.json`)
 
 ---
 
-### Component 3.2: Source Maps
+## Component 4: Service Operation Wrappers
 
-**Purpose**: Enable debugging of TypeScript source in browser DevTools.
+**Files**: `src/services/Flight.ts` (modified), `src/services/Context.tsx` (modified)
+**Pattern**: Context Propagation Bridge (P5) + Blacklist Filter Chain (P6)
 
-**Configuration**:
-- **Enabled in**: `tsconfig.json` with `"sourceMap": true`
-- **Output**: `build/**/*.js.map` files
+**Responsibility**: Wraps service-layer operations (flight search, cart updates, checkout) with child spans that are children of the active route span. Sanitizes all span attributes through the PII filter before recording.
 
-**Interfaces**:
-- **Input**: TypeScript source files
-- **Output**: `.map` files mapping compiled JS back to TS source
+**Operations to wrap**:
 
-**Integration Points**:
-- Browser DevTools read source maps automatically
-- Enables setting breakpoints in `.tsx` files (not compiled `.js`)
+| File | Function / Operation | Span Name |
+|---|---|---|
+| `Flight.ts` | Flight search fetch | `http.client.operation.search` |
+| `Flight.ts` | Flight details fetch | `http.client.operation.flight.detail` |
+| `Context.tsx` | Add to cart | `http.client.operation.cart.add` |
+| `Context.tsx` | Remove from cart | `http.client.operation.cart.remove` |
+| `Context.tsx` | Checkout submit | `http.client.operation.checkout` |
 
-**Responsibilities**:
-- Map compiled JavaScript back to original TypeScript source
-- Enable debugging with TypeScript line numbers
-- Improve developer experience during runtime troubleshooting
+**Instrumentation pattern for each operation**:
 
-**Success Criteria**:
-- ✅ Source maps generated during build
-- ✅ Browser DevTools show TypeScript source
-- ✅ Breakpoints work in `.tsx` files
+`	ypescript
+import { context, trace } from '@opentelemetry/api';
+import { currentRouteSpan } from './RouteTracing';
+import { TracingHelpers, sanitizeAttributes } from './CustomTracing';
 
----
+async function searchFlights(params: SearchParams): Promise<FlightResult[]> {
+  const parentCtx = currentRouteSpan
+    ? trace.setSpan(context.active(), currentRouteSpan)
+    : context.active();
 
-## Component Category 4: Conversion Execution & Tracking
+  return context.with(parentCtx, () =>
+    TracingHelpers.withSpan('http.client.operation.search', async (span) => {
+      span.setAttributes(sanitizeAttributes({
+        'app.operation.name': 'searchFlights',
+        'app.search.origin': params.origin,
+        'app.search.destination': params.destination,
+        'app.search.tripType': params.tripType,
+        'app.search.seatClass': params.seatClass,
+      }));
+      // ... existing fetch logic unchanged
+    })
+  );
+}
+`
 
-### Component 4.1: Phase Execution Plan
+**Error capture** (applied in the `withSpan` callback catch block):
+1. Catch the error
+2. Call `filterErrorObject(error)` (Component 5) to get sanitized attribute map
+3. Call `span.setAttributes(filteredAttrs)` then `TracingHelpers.recordError(span, error)`
+4. Re-throw error (existing error handling flow unchanged)
 
-**Purpose**: Define and track conversion progress through 5 sequential phases.
-
-**Configuration**:
-- **Plan File**: `aidlc-docs/construction/plans/unit-2-code-generation-plan.md`
-- **Phases**: 5 sequential phases (services → infrastructure → components → pages → app root)
-- **Checkboxes**: Each step tracked with `[ ]` / `[x]` checkboxes
-
-**Interfaces**:
-- **Input**: Plan definition with conversion steps
-- **Output**: Real-time checkbox updates as steps complete
-
-**Integration Points**:
-- Updated manually as each file converted
-- Referenced during conversion execution
-- Used for progress tracking and audit trail
-
-**Responsibilities**:
-- Define conversion sequence (29+ files)
-- Track completion status per file
-- Provide structure for layered conversion (Pattern 1)
-- Enable rollback to specific checkpoint
-
-**Success Criteria**:
-- ✅ All phase checkboxes completed
-- ✅ Plan updated in real-time during execution
-- ✅ Clear completion markers for each phase
+**Dependencies**:
+- `currentRouteSpan` from `RouteTracing.ts` (Component 1)
+- `TracingHelpers`, `sanitizeAttributes`, `filterErrorObject` from `CustomTracing.ts` (Component 5)
+- `context`, `trace` from `@opentelemetry/api`
 
 ---
 
-### Component 4.2: Git Checkpoint System
+## Component 5: PII Filter Extension
 
-**Purpose**: Create atomic commits per phase for safe rollback.
+**File**: `src/services/CustomTracing.ts` (modified)
+**Pattern**: Blacklist Filter Chain (P6)
 
-**Configuration**:
-- **Strategy**: One commit per phase (or per batch within phase)
-- **Message Format**: Standardized commit message template (Pattern 7)
+**Responsibility**: Provides the shared sanitization functions used by all Unit 2 components. Extends Unit 1's existing `recordSafeError` and `setAttributeSafe` with a comprehensive key blacklist and value-level regex that applies consistently to both route attributes and error objects.
 
-**Interfaces**:
-- **Input**: Converted files + validation results
-- **Output**: Git commits with descriptive messages
+**New exports added to CustomTracing.ts**:
 
-**Integration Points**:
-- Git version control system
-- Used after each phase's quality gates pass
-- Enables rollback with `git reset`
+`	ypescript
+// Full PII key blacklist
+export const PII_KEY_BLACKLIST: ReadonlySet<string>;
 
-**Responsibilities**:
-- Preserve conversion state after each phase
-- Enable rollback to last known-good state
-- Provide audit trail of conversion progression
-- Document quality gate results in commit messages
+// Sanitize a flat attribute map  remove blacklisted keys, scrub values
+export function sanitizeAttributes(
+  raw: Record<string, unknown>
+): Record<string, string | number | boolean>;
 
-**Success Criteria**:
-- ✅ 5+ commits created (one per phase)
-- ✅ Commit messages include validation summary
-- ✅ Git history enables safe rollback
+// Serialize + sanitize an error object into safe span attributes
+export function filterErrorObject(
+  err: unknown
+): Record<string, string>;
+`
 
----
+**Blacklist coverage**:
 
-## Component Category 5: Quality Assurance & Validation
+| Category | Keys |
+|---|---|
+| User identity | `userId`, `user_id`, `username`, `sessionId`, `session_id` |
+| Booking | `bookingRef`, `booking_ref`, `confirmationCode`, `pnr` |
+| Payment | `cardNumber`, `cvv`, `paymentToken`, `accountNumber` |
+| Contact | `email`, `phone`, `phoneNumber`, `address` |
+| Auth | `token`, `authToken`, `accessToken`, `jwt`, `password` |
 
-### Component 5.1: Automated Build System
+**Value-level patterns**:
+- Email: `/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g`  `[email]`
+- Phone: `/\+?[\d\s\-()]{10,15}/g`  `[phone]`
+- JWT/Bearer: `/Bearer\s+[A-Za-z0-9\-._~+/]+=*/g`  `[token]`
 
-**Purpose**: Execute production build to validate compilation.
-
-**Configuration**:
-- **Script**: `npm run build` (runs react-scripts build)
-- **Output**: `build/` directory with compiled application
-
-**Interfaces**:
-- **Input**: TypeScript source files in `src/`
-- **Output**: Compiled JavaScript in `build/`, exit code 0 (success) or non-zero (failure)
-
-**Integration Points**:
-- react-scripts (Create React App build tool)
-- TypeScript compiler (invoked internally)
-- webpack (bundler, invoked by react-scripts)
-
-**Responsibilities**:
-- Compile TypeScript to JavaScript
-- Bundle application for production
-- Optimize output (minification, tree-shaking)
-- Report build errors if compilation fails
-- Generate production-ready artifacts
-
-**Success Criteria**:
-- ✅ Build completes without errors after each phase
-- ✅ Build time remains reasonable (< 60 seconds)
-- ✅ Output bundle functions correctly
+**Backward compatibility**: No existing `CustomTracing.ts` exports are modified or removed. New exports are purely additive.
 
 ---
 
-### Component 5.2: Development Server
+## Component 6: Route-Aware App Shell
 
-**Purpose**: Validate application runs correctly in development mode.
+**File**: `src/components/ApplicationContainer/ApplicationContainer.tsx` (modified)
+**Pattern**: Anchors Patterns P2 and P3 into the React component tree
 
-**Configuration**:
-- **Script**: `npm start` (runs react-scripts start)
-- **Port**: 3000 (default)
+**Responsibility**: The single location in the component tree where `useRouteTracing()` and `useHistoryTracing()` are called. This component wraps all routes and persists for the full application lifetime, making it the correct anchor point for both hooks.
 
-**Interfaces**:
-- **Input**: TypeScript source files
-- **Output**: Running application accessible at localhost:3000
+**Modified behavior**:
 
-**Integration Points**:
-- react-scripts start command
-- webpack dev server
-- Hot module replacement (HMR)
+`	ypescript
+// Addition to ApplicationContainer component body
 
-**Responsibilities**:
-- Serve application in development mode
-- Enable hot reload for fast iteration
-- Report runtime errors in browser console
-- Validate application starts without errors
+import { useRouteTracing, useHistoryTracing } from '../../services/RouteTracing';
 
-**Success Criteria**:
-- ✅ Dev server starts successfully after Phase 2
-- ✅ Application accessible in browser
-- ✅ No startup errors in console
+export const ApplicationContainer: React.FC = () => {
+  useRouteTracing();    // Component 1: starts/ends route spans on location change
+  useHistoryTracing();  // Component 2: patches History API for full coverage
 
----
+  // ... existing JSX unchanged
+};
+`
 
-### Component 5.3: Manual Validation System
+**Why here**:
+- `ApplicationContainer` is rendered inside `<BrowserRouter>` (so `useLocation` is available)
+- It persists for the full session  hooks called here run exactly once and clean up on unmount
+- No other changes to routing or layout logic
 
-**Purpose**: Execute comprehensive manual testing to validate UI preservation.
-
-**Configuration**:
-- **Validation Plan**: Defined in Pattern 4 (nfr-design-patterns.md)
-- **Critical Paths**: 3 user journeys (search, cart, checkout)
-- **Visual Checks**: Mantine components, layout, icons
-
-**Interfaces**:
-- **Input**: Running application (via npm start or build)
-- **Output**: Validation checklist completions
-
-**Integration Points**:
-- Browser (manual testing environment)
-- validation-results.md (tracking document)
-
-**Responsibilities**:
-- Execute critical path user flows
-- Verify visual elements render correctly
-- Check for console errors during usage
-- Validate Mantine UI components function properly
-- Ensure OpenTelemetry tracing still works
-- Confirm zero behavior changes from pre-conversion
-
-**Success Criteria**:
-- ✅ All critical paths validated per phase
-- ✅ Zero visual regressions detected
-- ✅ Zero runtime errors in console
-- ✅ validation-results.md documents full testing
+**Dependencies**:
+- `useRouteTracing`, `useHistoryTracing` from `RouteTracing.ts` (Components 1 & 2)
 
 ---
 
-### Component 5.4: Performance Monitoring System
+## Component Dependency Diagram
 
-**Purpose**: Track type-check performance against aggressive targets.
+`
+ApplicationContainer.tsx (C6)
+   useRouteTracing()   RouteTracing.ts (C1+C2)
+                                               getActiveTracer()   Tracing.ts (Unit 1)
+                                               sanitizeAttributes()  CustomTracing.ts (C5)
+   useHistoryTracing()  RouteTracing.ts (C2)
+                                             (patches window.history.pushState)
 
-**Configuration**:
-- **Targets**: < 30s full type-check, < 5s incremental
-- **Tracking**: Performance table in code-generation-summary.md
+reportWebVitals.ts (C3)
+   currentRouteSpan  RouteTracing.ts (C1) [module import]
 
-**Interfaces**:
-- **Input**: `time npm run type-check` measurements
-- **Output**: Performance data table with status indicators
+Flight.ts (C4)
+   currentRouteSpan  RouteTracing.ts (C1) [module import]
+   TracingHelpers  CustomTracing.ts (C5)
+   sanitizeAttributes  CustomTracing.ts (C5)
+   filterErrorObject  CustomTracing.ts (C5)
 
-**Integration Points**:
-- TypeScript compiler execution
-- Measured after each phase
-- Triggers optimization if targets missed
-
-**Responsibilities**:
-- Measure type-check times per phase
-- Track performance trends (is it degrading?)
-- Identify when optimization needed
-- Document optimization actions taken
-
-**Success Criteria**:
-- ✅ Performance tracked after each phase
-- ✅ Full type-check < 30 seconds (final)
-- ✅ Incremental type-check < 5 seconds (final)
-- ✅ Performance table included in summary doc
+Context.tsx (C4)
+   (same dependency pattern as Flight.ts)
+`
 
 ---
 
-## Component Category 6: Documentation & Knowledge Capture
+## Integration Sequence: Flight Search
 
-### Component 6.1: NFR Requirements Document
+`
+1. User navigates to /search
+    useRouteTracing() starts http.client.route span
+    currentRouteSpan = <new root span>
 
-**Purpose**: Define non-functional requirements guiding conversion.
+2. User submits search form
+    searchFlights(params) called in Flight.ts
+    context.with(parent=currentRouteSpan, () => TracingHelpers.withSpan('http.client.operation.search', ...))
+    child span started, linked to currentRouteSpan
 
-**Configuration**:
-- **File**: `aidlc-docs/construction/unit-2/nfr-requirements/nfr-requirements.md`
-- **Content**: Conversion safety, type quality, performance, validation requirements
+3. Fetch /api/flights fires
+    FetchInstrumentation (Unit 1) auto-instruments the fetch
+    traceparent header injected (W3C propagation)
+    child span for the HTTP request started under operation.search span
 
-**Interfaces**:
-- **Input**: User answers to 8 NFR questions
-- **Output**: Structured requirements document
+4. Response returns / error thrown
+    filterErrorObject (if error) + setAttributes + recordError
+    operation.search span ended
 
-**Integration Points**:
-- Referenced during NFR Design (this document)
-- Used to derive design patterns
-- Guides code generation execution
+5. Browser reports LCP
+    reportWebVitals callback fires
+    currentRouteSpan.setAttribute('web_vital.lcp', value)
 
-**Responsibilities**:
-- Document layered approach decision
-- Define type escape policy
-- Specify performance targets
-- Detail validation depth requirements
-
-**Success Criteria**:
-- ✅ Documents generated from user answers
-- ✅ Requirements clear and actionable
-- ✅ Design patterns traceable to requirements
-
----
-
-### Component 6.2: NFR Design Patterns Document
-
-**Purpose**: Define reusable patterns implementing NFR requirements.
-
-**Configuration**:
-- **File**: `aidlc-docs/construction/unit-2/nfr-design/nfr-design-patterns.md`
-- **Content**: 7 design patterns for safe TypeScript conversion
-
-**Interfaces**:
-- **Input**: NFR requirements
-- **Output**: Concrete implementation patterns
-
-**Integration Points**:
-- Referenced during code generation
-- Guides file conversion approach
-- Provides examples and templates
-
-**Responsibilities**:
-- Pattern 1: Layered conversion sequencing
-- Pattern 2: Type modeling standards
-- Pattern 3: Type escape documentation
-- Pattern 4: Comprehensive validation
-- Pattern 5: Third-party type wrappers
-- Pattern 6: Performance monitoring
-- Pattern 7: Git checkpoint strategy
-
-**Success Criteria**:
-- ✅ 7 patterns documented with examples
-- ✅ Patterns traceable to NFR requirements
-- ✅ Patterns used during code generation
+6. User navigates to /checkout
+    useRouteTracing() cleanup: end http.client.route span (with web_vital attrs)
+    new http.client.route /checkout span started
+    currentRouteSpan updated
+`
 
 ---
 
-### Component 6.3: Tech Stack Decisions Document
+## Unit 2 Scope Summary
 
-**Purpose**: Document specific technical choices for TypeScript conversion.
-
-**Configuration**:
-- **File**: `aidlc-docs/construction/unit-2/nfr-requirements/tech-stack-decisions.md`
-- **Content**: File naming, phases, type modeling, quality gates
-
-**Interfaces**:
-- **Input**: NFR requirements + technical analysis
-- **Output**: Concrete technical decisions
-
-**Integration Points**:
-- Referenced during code generation
-- Defines file extension rules (.ts vs .tsx)
-- Specifies type patterns to use
-
-**Responsibilities**:
-- Define `.js` → `.ts` / `.tsx` mapping rules
-- Document 5-phase conversion plan
-- Provide type modeling examples
-- Specify quality gate criteria per phase
-
-**Success Criteria**:
-- ✅ All technical decisions documented
-- ✅ File naming rules clear
-- ✅ Type patterns with examples provided
+| Component | File | Action | Patterns |
+|---|---|---|---|
+| Route Span Controller | `src/services/RouteTracing.ts` | Create | P1, P2 |
+| History Instrumentation | `src/services/RouteTracing.ts` | Create | P3 |
+| Web Vitals Bridge | `src/reportWebVitals.ts` | Modify | P4 |
+| Service Op Wrappers | `src/services/Flight.ts` | Modify | P5, P6 |
+| Service Op Wrappers | `src/services/Context.tsx` | Modify | P5, P6 |
+| PII Filter Extension | `src/services/CustomTracing.ts` | Modify | P6 |
+| Route-Aware App Shell | `src/components/ApplicationContainer/ApplicationContainer.tsx` | Modify | P2, P3 |
+| Route Tracing Tests | `src/services/__tests__/RouteTracing.test.ts` | Create | All |
 
 ---
 
-### Component 6.4: Code Generation Summary Document
-
-**Purpose**: Capture conversion execution results, challenges, and solutions.
-
-**Configuration**:
-- **File**: `aidlc-docs/construction/unit-2/code/code-generation-summary.md`
-- **Content**: Execution summary, type-check performance, issues encountered, final outcomes
-
-**Interfaces**:
-- **Input**: Conversion execution data
-- **Output**: Summary document for future reference
-
-**Integration Points**:
-- Created during code generation stage
-- References all prior documents
-- Includes performance tracking table
-
-**Responsibilities**:
-- Summarize conversion approach executed
-- Document key type modeling decisions made
-- Record notable challenges and solutions
-- Present validation results
-- Track type-check performance per phase
-
-**Success Criteria**:
-- ✅ Summary created after conversion complete
-- ✅ Performance data included
-- ✅ Challenges and solutions documented
-- ✅ Minimal length per Q8=C (no comprehensive guide)
-
----
-
-## Component Interaction Diagram
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                       DEVELOPER WORKSPACE                            │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  ┌──────────────┐   writes    ┌──────────────────────┐            │
-│  │   Developer  │─────────────>│  TypeScript Source   │            │
-│  │              │              │    (.ts / .tsx)      │            │
-│  └──────────────┘              └──────────┬───────────┘            │
-│         ↑                                  │                         │
-│         │ real-time                        │ compiled by            │
-│         │ feedback                         ↓                         │
-│         │                        ┌──────────────────┐               │
-│         │                        │  TypeScript       │               │
-│         └────────────────────────│  Compiler (tsc)   │               │
-│                  provides        └────────┬──────────┘               │
-│                  errors/types              │                         │
-│                                           │ generates               │
-│  ┌──────────────────────────┐            ↓                         │
-│  │  IDE (VS Code/WebStorm)  │    ┌──────────────────┐             │
-│  │  - TypeScript LSP        │    │  JavaScript +     │             │
-│  │  - IntelliSense          │    │  Source Maps      │             │
-│  │  - Error highlighting    │    └──────────────────┘             │
-│  └──────────────────────────┘                                       │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                     QUALITY ASSURANCE LAYER                          │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  ┌───────────────────┐         ┌──────────────────┐               │
-│  │ Type Check Script │         │  Build System     │               │
-│  │ npm run type-check│────────>│ npm run build     │               │
-│  └─────────┬─────────┘  gates  └────────┬─────────┘               │
-│            │                             │                          │
-│            │ validates                   │ produces                │
-│            ↓                             ↓                          │
-│  ┌──────────────────────┐     ┌──────────────────┐                │
-│  │  Strict Mode         │     │  Production       │                │
-│  │  Enforcement         │     │  Build Output     │                │
-│  └──────────────────────┘     └────────┬─────────┘                │
-│                                         │                           │
-│                                         │ served by                │
-│                                         ↓                           │
-│                               ┌──────────────────┐                 │
-│  ┌─────────────────────┐     │  Dev Server       │                │
-│  │ Manual Validation   │<────│  npm start        │                │
-│  │ - Critical paths    │     └──────────────────┘                 │
-│  │ - Visual checks     │                                           │
-│  │ - Console errors    │                                           │
-│  └─────────────────────┘                                           │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────────────────┐
-│                      TRACKING & DOCUMENTATION                        │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  ┌─────────────────┐       ┌──────────────────┐                   │
-│  │ Phase Plan      │──────>│  Git Checkpoints │                   │
-│  │ (checkboxes)    │update │  (commits/phase) │                   │
-│  └─────────────────┘       └──────────────────┘                   │
-│                                                                      │
-│  ┌──────────────────┐      ┌──────────────────┐                   │
-│  │ Performance      │      │  Validation       │                   │
-│  │ Tracking Table   │      │  Results Checklist│                   │
-│  └──────────────────┘      └──────────────────┘                   │
-│                                                                      │
-│  ┌─────────────────────────────────────────────┐                   │
-│  │   Code Generation Summary (final output)    │                   │
-│  └─────────────────────────────────────────────┘                   │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Component Dependencies
-
-| Component | Depends On | Provides To |
-|-----------|------------|-------------|
-| TypeScript Compiler | tsconfig.json, source files | JavaScript output, type errors |
-| Type Check Script | TypeScript Compiler | Pass/fail validation |
-| Strict Mode Enforcement | TypeScript Compiler | Type safety guarantees |
-| TypeScript Language Server | tsconfig.json, tsc | IDE features (autocomplete, errors) |
-| Build System | TypeScript Compiler, source files | Production bundle |
-| Dev Server | Build System | Running application |
-| Manual Validation | Dev Server, Build System | Validation results |
-| Git Checkpoints | Validation results | Rollback capability |
-| Phase Plan | --- | Tracking and structure |
-| Performance Monitoring | Type Check Script | Performance data |
-| NFR Requirements | User answers | Design patterns |
-| NFR Design Patterns | NFR Requirements | Implementation guidance |
-| Code Gen Summary | All execution data | Final documentation |
-
----
-
-## Component Lifecycle
-
-### Phase 1: Services
-1. Convert files (Functions.ts, Context.tsx, Flight.ts, Tracing.ts, CustomTracing.ts)
-2. TypeScript Compiler validates types
-3. Type Check Script executes quality gate
-4. Build System produces successful build
-5. Manual Validation performs smoke test
-6. Performance Monitoring records times
-7. Git Checkpoint creates commit
-8. Phase Plan checkboxes updated
-
-### Phase 2: Infrastructure
-[Same component flow, different files]
-
-### Phase 3: Components
-[Same component flow, adds visual validation]
-
-### Phase 4: Pages
-[Same component flow, adds critical path testing]
-
-### Phase 5: App Root (Final)
-1. Convert App.tsx
-2. All components validate end-to-end
-3. Comprehensive manual validation
-4. Performance final measurement
-5. Git Checkpoint (final commit)
-6. Code Generation Summary created
-7. Unit 2 marked complete
-
----
-
-## Success Criteria Summary
-
-All logical components must achieve their success criteria:
-- ✅ TypeScript Compiler: Zero errors, performance targets met
-- ✅ Type Check Script: < 30s full, < 5s incremental
-- ✅ Strict Mode: All files pass with strict enabled
-- ✅ IDE Integration: Real-time feedback working
-- ✅ Build System: Successful builds after each phase
-- ✅ Dev Server: Starts without errors
-- ✅ Manual Validation: All critical paths pass, zero visual regressions
-- ✅ Git Checkpoints: 5+ commits with clear messages
-- ✅ Phase Plan: All checkboxes completed
-- ✅ Performance Monitoring: Targets met, data documented
-- ✅ Documentation: All required docs generated
-
----
-
-**Total Logical Components**: 17 across 6 categories  
-**Document Version**: 1.0  
-**Created**: 2026-03-09
+**Document Version**: 1.0
+**Created**: 2026-03-11

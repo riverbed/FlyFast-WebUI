@@ -1,5 +1,6 @@
 /**
  * Purpose: This file (ApplicationContainer.tsx) supports the ApplicationContainer area of the FlyFast booking workflow.
+ * Enhanced: Route-level tracing and history instrumentation hooks integrated.
  */
 import {
   AppShell,
@@ -13,6 +14,7 @@ import type { ReactNode } from "react";
 
 import ApplicationHeader from "@/components/ApplicationContainer/ApplicationHeader";
 import { CartProvider } from "@/services/Context";
+import { useRouteTracing, useHistoryTracing } from "@/services/RouteTracing";
 
 interface ApplicationContainerProps {
   children: ReactNode;
@@ -39,6 +41,10 @@ const ApplicationShell = ({ children }: ApplicationContainerProps) => {
   };
 
   useHotkeys([["mod+J", toggleTheme]]);
+  
+  // Enable route-level tracing and history instrumentation
+  useRouteTracing();
+  useHistoryTracing();
 
   return (
     <AppShell header={{ height: { base: 50, md: 70 } }}>
