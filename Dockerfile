@@ -1,4 +1,4 @@
-FROM node:22-alpine AS react-build
+FROM node:25-alpine AS react-build
 
 # Pin npm for reproducible dependency behavior across local and CI builds.
 RUN npm install -g npm@11.7.0
